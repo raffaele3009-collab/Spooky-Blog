@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spooky Blog &ndash; Sognidor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --crema:#f0ede5;
+  --blu-testo:#26538c;
+  --blu-titoli:#1d4e89;
+  --blu-scuro-titoli:#123f7e;
+  --footer-blu:#0d72ff;
+  --hero-teal:#149ab5;
+  --badge-offerta:#a9c1e4;
+  --header-grad1:#8fb6d9;
+  --header-grad2:#5f95c9;
+  --btn-blu:#0d6efd;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'Poppins',sans-serif;
+  background:var(--crema);
+  color:var(--blu-testo);
+  font-weight:300;
+  letter-spacing:.06em;
+}
+h1,h2,h3,.heading{font-family:'Archivo',sans-serif;letter-spacing:.01em;}
+header{
+  position:sticky;top:0;z-index:100;
+  background:linear-gradient(120deg,var(--header-grad1) 0%,var(--header-grad2) 55%,var(--header-grad1) 100%);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:26px 30px;
+}
+.hamburger{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;gap:7px;padding:4px;}
+.hamburger span{display:block;width:26px;height:1.6px;background:#fff;}
+.logo-link{position:absolute;left:50%;transform:translateX(-50%);}
+.logo-ghost{height:52px;display:block;}
+.header-icons{display:flex;align-items:center;gap:26px;}
+.header-icons svg{width:26px;height:26px;stroke:#fff;fill:none;stroke-width:1.4;cursor:pointer;}
+.announce{
+  background:linear-gradient(90deg,#3ec9d6 0%,#2a8fd4 45%,#1240c0 100%);
+  color:#fff;overflow:hidden;white-space:nowrap;
+  padding:18px 0;
+}
+.announce-track{display:inline-flex;align-items:center;gap:60px;animation:scrollLeft 18s linear infinite;}
+@keyframes scrollLeft{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+.announce-item{display:inline-flex;align-items:center;gap:60px;font-size:15px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;}
+.announce-ghost{width:24px;height:24px;}
+.hero{
+  background:var(--hero-teal);
+  position:relative;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;
+  min-height:520px;
+  overflow:hidden;
+}
+.hero-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center;}
+.hero-content{position:relative;z-index:2;padding:0 20px;}
+.hero-eyebrow{color:#e8eef4;font-size:14px;letter-spacing:.28em;text-transform:uppercase;margin-bottom:16px;font-weight:400;}
+.hero-title{color:#fff;font-size:44px;font-weight:500;margin-bottom:34px;letter-spacing:.01em;}
+.hero-btn{
+  display:inline-block;background:var(--btn-blu);color:#fff;
+  font-family:'Poppins',sans-serif;font-size:18px;font-weight:400;letter-spacing:.08em;
+  padding:18px 48px;border-radius:8px;border:none;cursor:pointer;text-decoration:none;
+}
+.section{padding:44px 20px;}
+.section-title{color:var(--blu-scuro-titoli);font-size:36px;font-weight:500;margin-bottom:8px;}
+.page-title{color:var(--blu-scuro-titoli);font-size:44px;font-weight:500;margin-bottom:34px;}
+.section-link{color:var(--blu-testo);font-size:16px;text-decoration:underline;text-underline-offset:4px;}
+.products{display:grid;grid-template-columns:1fr 1fr;gap:26px 22px;}
+.card{display:flex;flex-direction:column;}
+.card-img-wrap{position:relative;background:#fff;aspect-ratio:1/1;overflow:hidden;}
+.card-img-wrap img{width:100%;height:100%;object-fit:cover;}
+.badge{
+  position:absolute;left:12px;bottom:14px;
+  background:var(--badge-offerta);color:#fff;
+  font-size:15px;padding:8px 22px;border-radius:22px;font-weight:300;
+}
+.card-name{color:var(--blu-titoli);font-size:19px;font-weight:400;margin:20px 0 10px;letter-spacing:.04em;}
+.price-old{color:var(--blu-testo);text-decoration:line-through;font-size:18px;display:block;margin-bottom:2px;}
+.price-new{color:var(--blu-titoli);font-size:22px;font-weight:400;display:block;margin-bottom:16px;}
+.btn-outline{
+  border:1.4px solid var(--blu-titoli);color:var(--blu-titoli);background:none;
+  font-family:'Poppins',sans-serif;font-size:17px;font-weight:300;letter-spacing:.06em;
+  padding:15px 10px;border-radius:8px;cursor:pointer;width:100%;max-width:270px;
+}
+.qty{
+  display:flex;align-items:center;justify-content:space-between;
+  border:1.4px solid var(--blu-titoli);border-radius:8px;
+  width:100%;max-width:310px;padding:14px 24px;
+  color:var(--blu-titoli);font-size:20px;
+}
+.qty button{background:none;border:none;color:var(--blu-titoli);font-size:22px;cursor:pointer;padding:0 6px;}
+.blog-title{color:var(--blu-scuro-titoli);font-size:40px;font-weight:500;margin-bottom:10px;}
+.blog-grid{display:grid;grid-template-columns:1fr;gap:22px;}
+.blog-card{
+  background:radial-gradient(circle at 55% 45%, #1c4f86 0%, #4d8cc4 55%, #7db3de 100%);
+  border-radius:14px;color:#fff;
+  padding:44px 38px 90px;
+  display:block;text-decoration:none;
+}
+.blog-card h3{font-size:30px;font-weight:500;margin-bottom:22px;line-height:1.25;color:#fff;}
+.blog-date{font-size:13px;letter-spacing:.22em;margin-bottom:26px;font-weight:400;}
+.blog-excerpt{font-size:19px;line-height:1.85;color:#dce8f2;}
+.blog-carousel{display:flex;gap:18px;overflow:hidden;}
+.blog-carousel .blog-card{min-width:92%;}
+.blog-next-peek{
+  background:radial-gradient(circle at 40% 45%, #1c4f86 0%, #4d8cc4 60%, #7db3de 100%);
+  border-radius:14px;min-width:4%;
+}
+.pagination{display:flex;align-items:center;justify-content:center;gap:36px;margin-top:34px;color:var(--blu-titoli);font-size:17px;}
+.pagination button{background:none;border:none;color:var(--blu-titoli);font-size:22px;cursor:pointer;}
+.chi p{font-size:19px;line-height:2;margin-bottom:30px;}
+.chi h3{font-size:20px;font-weight:600;margin-bottom:22px;color:var(--blu-testo);font-family:'Poppins',sans-serif;}
+.chi strong{font-weight:600;}
+.empty-note{
+  border:1.6px dashed var(--badge-offerta);border-radius:14px;
+  padding:60px 24px;text-align:center;color:var(--blu-testo);
+  font-size:18px;line-height:1.9;margin-top:10px;
+}
+.newsletter{
+  background:radial-gradient(circle at 50% 55%, #123a66 0%, #3a77ad 55%, #7fb0d8 100%);
+  text-align:center;color:#fff;
+  padding:76px 24px 100px;
+}
+.newsletter h2{font-size:42px;font-weight:500;margin-bottom:34px;}
+.newsletter p{font-size:19px;line-height:1.9;color:#d9e6f1;margin-bottom:40px;}
+.newsletter-form{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--footer-blu);
+  border:1.4px solid #cfe0ef;border-radius:10px;
+  max-width:560px;margin:0 auto;padding:22px 28px;
+}
+.newsletter-form input{
+  background:none;border:none;outline:none;color:#fff;
+  font-family:'Poppins',sans-serif;font-size:20px;letter-spacing:.06em;flex:1;
+}
+.newsletter-form input::placeholder{color:#e4edf5;}
+.newsletter-form button{background:none;border:none;color:#fff;font-size:24px;cursor:pointer;}
+footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
+.foot-col{margin-bottom:64px;}
+.foot-col h3{font-size:26px;font-weight:500;margin-bottom:44px;font-family:'Archivo',sans-serif;}
+.foot-col a{color:#dfeafc;font-size:19px;text-decoration:none;letter-spacing:.06em;}
+.foot-social{display:flex;gap:44px;margin:14px 0 70px;padding-left:12px;}
+.foot-social svg{width:30px;height:30px;fill:#fff;}
+.shop-btn{
+  display:flex;align-items:center;gap:12px;
+  background:#5a31f4;color:#fff;border:none;border-radius:32px;
+  font-family:'Poppins',sans-serif;font-size:22px;font-weight:500;
+  padding:16px 34px;margin:0 auto 70px;cursor:pointer;
+}
+.shop-btn svg{width:26px;height:26px;fill:none;stroke:#fff;stroke-width:2;}
+.foot-social-center{display:flex;justify-content:center;gap:56px;margin-bottom:80px;}
+.foot-social-center svg{width:32px;height:32px;fill:#fff;}
+.foot-divider{border-top:1px solid rgba(255,255,255,.25);margin-bottom:44px;}
+.foot-legal{text-align:center;color:#e2ecfa;font-size:16px;line-height:2.4;letter-spacing:.06em;}
+.foot-legal a{color:#e2ecfa;text-decoration:none;}
+.menu-overlay{
+  position:fixed;inset:0;z-index:200;
+  background:radial-gradient(circle at 50% 55%, #1c4f86 0%, #4d8cc4 55%, #8ab8de 100%);
+  display:none;flex-direction:column;
+}
+.menu-overlay.open{display:flex;}
+.menu-top{display:flex;align-items:center;justify-content:space-between;padding:26px 30px;position:relative;}
+.menu-close{background:none;border:none;cursor:pointer;color:#fff;font-size:34px;font-weight:300;line-height:1;}
+.menu-links{padding:60px 40px;display:flex;flex-direction:column;gap:52px;flex:1;}
+.menu-links a{color:#fff;font-size:26px;text-decoration:none;font-weight:300;letter-spacing:.06em;}
+.menu-account{display:flex;align-items:center;gap:20px;padding:0 40px 60px;color:#fff;font-size:22px;}
+.menu-account .avatar{width:44px;height:44px;border-radius:50%;background:#fff;color:#2a6bb0;display:flex;align-items:center;justify-content:center;font-weight:500;font-size:20px;}
+@media(min-width:900px){
+  .products{grid-template-columns:repeat(4,1fr);}
+  .blog-grid{grid-template-columns:repeat(3,1fr);}
+  .hero-title{font-size:60px;}
+  .section{padding:60px 60px;}
+  footer{padding:66px 60px 40px;}
+  .foot-cols-wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:30px;}
+}
+</style>
+</head>
+<body>
+
+<div class="menu-overlay" id="menu">
+  <div class="menu-top">
+    <button class="menu-close" onclick="document.getElementById('menu').classList.remove('open')">&#10005;</button>
+    <a class="logo-link" href="index.html"><svg class="logo-ghost" style="" viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#1a1a1a" d="M50 3 C26 3 11 22 11 46 L11 93 C11 98 14 100 18 99 C23 98 26 95 31 96 C37 97 42 100 50 100 C58 100 63 97 69 96 C74 95 77 98 82 99 C86 100 89 98 89 93 L89 46 C89 22 74 3 50 3 Z"/>
+      <ellipse cx="37" cy="41" rx="10.5" ry="15" fill="#f0ede5"/>
+      <ellipse cx="63" cy="41" rx="10.5" ry="15" fill="#f0ede5"/>
+    </svg></a>
+    <div class="header-icons">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+    </div>
+  </div>
+  <nav class="menu-links">
+    <a href="index.html">Home</a>
+    <a href="contattaci.html">Contattaci</a>
+    <a href="chi-siamo.html">Chi Siamo</a>
+    <a href="spooky-blog.html">Spooky Blog</a>
+  </nav>
+  <div class="menu-account"><span class="avatar">R</span> Account</div>
+</div>
+
+<header>
+  <button class="hamburger" onclick="document.getElementById('menu').classList.add('open')">
+    <span></span><span></span><span></span>
+  </button>
+  <a class="logo-link" href="index.html"><svg class="logo-ghost" style="" viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#1a1a1a" d="M50 3 C26 3 11 22 11 46 L11 93 C11 98 14 100 18 99 C23 98 26 95 31 96 C37 97 42 100 50 100 C58 100 63 97 69 96 C74 95 77 98 82 99 C86 100 89 98 89 93 L89 46 C89 22 74 3 50 3 Z"/>
+      <ellipse cx="37" cy="41" rx="10.5" ry="15" fill="#f0ede5"/>
+      <ellipse cx="63" cy="41" rx="10.5" ry="15" fill="#f0ede5"/>
+    </svg></a>
+  <div class="header-icons">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+  </div>
+</header>
+
+<div class="announce">
+  <div class="announce-track announce-js">
+    <span class="announce-item">
+      ASSISTENZA 24 ORE
+      <svg class="announce-ghost" style="" viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#ffffff" d="M50 3 C26 3 11 22 11 46 L11 93 C11 98 14 100 18 99 C23 98 26 95 31 96 C37 97 42 100 50 100 C58 100 63 97 69 96 C74 95 77 98 82 99 C86 100 89 98 89 93 L89 46 C89 22 74 3 50 3 Z"/>
+      <ellipse cx="37" cy="41" rx="10.5" ry="15" fill="#2a8fd4"/>
+      <ellipse cx="63" cy="41" rx="10.5" ry="15" fill="#2a8fd4"/>
+    </svg>
+      SPOOKY
+      <svg class="announce-ghost" style="" viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#ffffff" d="M50 3 C26 3 11 22 11 46 L11 93 C11 98 14 100 18 99 C23 98 26 95 31 96 C37 97 42 100 50 100 C58 100 63 97 69 96 C74 95 77 98 82 99 C86 100 89 98 89 93 L89 46 C89 22 74 3 50 3 Z"/>
+      <ellipse cx="37" cy="41" rx="10.5" ry="15" fill="#1240c0"/>
+      <ellipse cx="63" cy="41" rx="10.5" ry="15" fill="#1240c0"/>
+    </svg>
+      SPEDIZIONE
+      <svg class="announce-ghost" style="" viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#ffffff" d="M50 3 C26 3 11 22 11 46 L11 93 C11 98 14 100 18 99 C23 98 26 95 31 96 C37 97 42 100 50 100 C58 100 63 97 69 96 C74 95 77 98 82 99 C86 100 89 98 89 93 L89 46 C89 22 74 3 50 3 Z"/>
+      <ellipse cx="37" cy="41" rx="10.5" ry="15" fill="#3ec9d6"/>
+      <ellipse cx="63" cy="41" rx="10.5" ry="15" fill="#3ec9d6"/>
+    </svg>
+    </span>
+  </div>
+</div>
+
+
+<section class="section">
+  <h2 class="blog-title">Diario per Dormiglioni</h2>
+  <div style="height:30px"></div>
+  <div class="blog-grid">
+    
+    <a class="blog-card" href="articolo-cronotipi.html">
+      <h3>Cronotipi: Sei un Leone, un Orso o un Lupo? Sco...</h3>
+      <div class="blog-date">26 MAGGIO 2026</div>
+      <p class="blog-excerpt">Ti sei mai chiesto perch&eacute; per alcune persone svegliarsi alle 6 del mattino per andare a correre sia una passeggiata, mentre per altre sia una tortura medievale? O perch&eacute; la...</p>
+    </a>
+
+    <!-- AGGIUNGI QUI I NUOVI ARTICOLI: copia il blocco <a class="blog-card"> qui sopra e cambia titolo, data e testo -->
+  </div>
+</section>
+
+
+<section class="newsletter">
+  <h2>Iscriviti alla newsletter</h2>
+  <p>Sii tra i primi a scoprire le nuove collezioni e<br>le offerte esclusive.</p>
+  <form class="newsletter-form" onsubmit="return false">
+    <input type="email" placeholder="Indirizzo email">
+    <button>&#8594;</button>
+  </form>
+</section>
+
+
+<footer>
+  <div class="foot-cols-wrap">
+    <div class="foot-col"><h3>Link rapidi</h3><a href="#">Search</a></div>
+    <div class="foot-col"><h3>Instagram</h3><a href="#">_Spookymanager_</a></div>
+    <div class="foot-col"><h3>Gmail</h3><a href="#">Spookymanager20@gmail.com</a></div>
+    <div class="foot-col"><h3>Faceboock</h3><a href="#">Spookymanager</a></div>
+  </div>
+  <div class="foot-social"><svg viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12c0 5 3.7 9.1 8.4 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7C18.3 21.1 22 17 22 12c0-5.5-4.5-10-10-10z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2-.1-1.3-.1-1.7-.1-4.9s0-3.6.1-4.9c.1-1.2.2-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4 1.3-.1 1.7-.1 4.9-.1zm0 1.8c-3.1 0-3.5 0-4.8.1-1.1.1-1.5.2-1.8.3-.5.2-.8.4-1.1.7-.3.3-.5.6-.7 1.1-.1.3-.3.7-.3 1.8-.1 1.3-.1 1.6-.1 4.8s0 3.5.1 4.8c.1 1.1.2 1.5.3 1.8.2.5.4.8.7 1.1.3.3.6.5 1.1.7.3.1.7.3 1.8.3 1.3.1 1.6.1 4.8.1s3.5 0 4.8-.1c1.1-.1 1.5-.2 1.8-.3.5-.2.8-.4 1.1-.7.3-.3.5-.6.7-1.1.1-.3.3-.7.3-1.8.1-1.3.1-1.6.1-4.8s0-3.5-.1-4.8c-.1-1.1-.2-1.5-.3-1.8-.2-.5-.4-.8-.7-1.1-.3-.3-.6-.5-1.1-.7-.3-.1-.7-.3-1.8-.3-1.3-.1-1.6-.1-4.8-.1zm0 3.1a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 1.8a3.2 3.2 0 1 0 0 6.4 3.2 3.2 0 0 0 0-6.4zm5.2-2.2a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4z"/></svg></div>
+  <button class="shop-btn">
+    <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9.5-9C.8 8.5 2.5 5 6 5c2 0 3.4 1 4 2 .6-1 2-2 4-2 3.5 0 5.2 3.5 3.5 7-2.5 4.5-9.5 9-9.5 9z"/></svg>
+    Segui su <strong style="font-weight:600">shop</strong>
+  </button>
+  <div class="foot-social-center"><svg fill="#fff" viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12c0 5 3.7 9.1 8.4 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7C18.3 21.1 22 17 22 12c0-5.5-4.5-10-10-10z"/></svg><svg fill="#fff" viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2-.1-1.3-.1-1.7-.1-4.9s0-3.6.1-4.9c.1-1.2.2-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4 1.3-.1 1.7-.1 4.9-.1zm0 1.8c-3.1 0-3.5 0-4.8.1-1.1.1-1.5.2-1.8.3-.5.2-.8.4-1.1.7-.3.3-.5.6-.7 1.1-.1.3-.3.7-.3 1.8-.1 1.3-.1 1.6-.1 4.8s0 3.5.1 4.8c.1 1.1.2 1.5.3 1.8.2.5.4.8.7 1.1.3.3.6.5 1.1.7.3.1.7.3 1.8.3 1.3.1 1.6.1 4.8.1s3.5 0 4.8-.1c1.1-.1 1.5-.2 1.8-.3.5-.2.8-.4 1.1-.7.3-.3.5-.6.7-1.1.1-.3.3-.7.3-1.8.1-1.3.1-1.6.1-4.8s0-3.5-.1-4.8c-.1-1.1-.2-1.5-.3-1.8-.2-.5-.4-.8-.7-1.1-.3-.3-.6-.5-1.1-.7-.3-.1-.7-.3-1.8-.3-1.3-.1-1.6-.1-4.8-.1zm0 3.1a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 1.8a3.2 3.2 0 1 0 0 6.4 3.2 3.2 0 0 0 0-6.4zm5.2-2.2a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4z"/></svg></div>
+  <div class="foot-divider"></div>
+  <div class="foot-legal">
+    &copy; 2026, Sognidor Powered by Shopify &nbsp;&middot;&nbsp; <a href="#">Informativa sulla privacy</a><br>
+    &middot;&nbsp; <a href="#">Informativa sui rimborsi</a> &nbsp;&middot;&nbsp; <a href="#">Recapiti</a> &nbsp;&middot;&nbsp; <a href="#">Informativa sulle spedizioni</a>
+  </div>
+</footer>
+<script>
+document.querySelectorAll('.announce-js').forEach(function(t){t.innerHTML+=t.innerHTML;});
+</script>
+
+</body>
+</html>
