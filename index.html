@@ -257,20 +257,46 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
   <h2 class="blog-title">Diario per Dormiglioni</h2>
   <a href="spooky-blog.html" class="section-link">Visualizza tutto</a>
   <div style="height:30px"></div>
-  <div class="blog-carousel">
-    
-    <a class="blog-card" href="articolo-cronotipi.html">
-      <h3>Cronotipi: Sei un Leone, un Orso o un Lupo? Sco...</h3>
-      <div class="blog-date">26 MAGGIO 2026</div>
-      <p class="blog-excerpt">Ti sei mai chiesto perch&eacute; per alcune persone svegliarsi alle 6 del mattino per andare a correre sia una passeggiata, mentre per altre sia una tortura medievale? O perch&eacute; la...</p>
-    </a>
-
-    <div class="blog-next-peek"></div>
-  </div>
-  <div class="pagination">
-    <button>&lsaquo;</button><span>1/3</span><button>&rsaquo;</button>
+  <div class="blog-carousel" id="home-blog-carousel">
+    <div class="empty-note">Caricamento...</div>
   </div>
 </section>
+
+<script>
+(async function caricaUltimoPost() {
+  const BACKEND_URL = "https://spooky-backend-trtr.onrender.com";
+  const contenitore = document.getElementById("home-blog-carousel");
+  const mesi = ["GENNAIO","FEBBRAIO","MARZO","APRILE","MAGGIO","GIUGNO","LUGLIO","AGOSTO","SETTEMBRE","OTTOBRE","NOVEMBRE","DICEMBRE"];
+
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/posts`);
+    const posts = await response.json();
+
+    if (posts.length === 0) {
+      contenitore.innerHTML = '<div class="empty-note">Presto nuovi contenuti sul blog!</div>';
+      return;
+    }
+
+    const ultimo = posts[0];
+    const d = new Date(ultimo.data);
+    const dataFormattata = `${d.getDate()} ${mesi[d.getMonth()]} ${d.getFullYear()}`;
+    const testoPlain = ultimo.contenuto.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+    const estratto = testoPlain.length > 150 ? testoPlain.slice(0, 150) + "..." : testoPlain;
+
+    contenitore.innerHTML = `
+      <a class="blog-card" href="spooky-blog.html?post=${ultimo._id}">
+        <h3>${ultimo.titolo}</h3>
+        <div class="blog-date">${dataFormattata.toUpperCase()}</div>
+        <p class="blog-excerpt">${estratto}</p>
+      </a>
+      <div class="blog-next-peek"></div>
+    `;
+  } catch (errore) {
+    contenitore.innerHTML = '<div class="empty-note">Non riesco a caricare il blog al momento.</div>';
+    console.error("Errore nel caricamento del post:", errore);
+  }
+})();
+</script>
 
 <section class="section chi">
   <h2 class="page-title">Chi Siamo</h2>

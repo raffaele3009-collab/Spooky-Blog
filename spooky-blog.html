@@ -171,6 +171,19 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 .menu-links a{color:#fff;font-size:26px;text-decoration:none;font-weight:300;letter-spacing:.06em;}
 .menu-account{display:flex;align-items:center;gap:20px;padding:0 40px 60px;color:#fff;font-size:22px;}
 .menu-account .avatar{width:44px;height:44px;border-radius:50%;background:#fff;color:#2a6bb0;display:flex;align-items:center;justify-content:center;font-weight:500;font-size:20px;}
+.post-content{font-size:19px;line-height:2;color:var(--blu-testo);}
+.post-content p{margin-bottom:26px;}
+.post-content h1,.post-content h2,.post-content h3{color:var(--blu-scuro-titoli);font-weight:600;margin:40px 0 18px;}
+.post-content h1{font-size:30px;}
+.post-content h2{font-size:26px;}
+.post-content h3{font-size:22px;}
+.post-content img{max-width:100%;border-radius:14px;margin:20px 0;display:block;}
+.post-content ul,.post-content ol{margin:0 0 26px 26px;}
+.post-content li{margin-bottom:10px;}
+.post-content strong{font-weight:600;}
+.post-content a{color:var(--blu-titoli);}
+.blog-card{cursor:pointer;border:none;text-align:left;width:100%;font-family:'Poppins',sans-serif;}
+#vista-lista.nascosto,#vista-articolo.nascosto{display:none;}
 @media(min-width:900px){
   .products{grid-template-columns:repeat(4,1fr);}
   .blog-grid{grid-template-columns:repeat(3,1fr);}
@@ -244,20 +257,98 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 </div>
 
 
-<section class="section">
+<section class="section" id="vista-lista">
   <h2 class="blog-title">Diario per Dormiglioni</h2>
   <div style="height:30px"></div>
-  <div class="blog-grid">
-    
-    <a class="blog-card" href="articolo-cronotipi.html">
-      <h3>Cronotipi: Sei un Leone, un Orso o un Lupo? Sco...</h3>
-      <div class="blog-date">26 MAGGIO 2026</div>
-      <p class="blog-excerpt">Ti sei mai chiesto perch&eacute; per alcune persone svegliarsi alle 6 del mattino per andare a correre sia una passeggiata, mentre per altre sia una tortura medievale? O perch&eacute; la...</p>
-    </a>
-
-    <!-- AGGIUNGI QUI I NUOVI ARTICOLI: copia il blocco <a class="blog-card"> qui sopra e cambia titolo, data e testo -->
+  <div class="blog-grid" id="blog-grid">
+    <div class="empty-note">Caricamento dei post in corso...</div>
   </div>
 </section>
+
+<section class="section chi nascosto" id="vista-articolo">
+  <div class="blog-date" id="articolo-data" style="color:var(--blu-testo);margin-bottom:18px;"></div>
+  <h2 class="page-title" id="articolo-titolo"></h2>
+  <div class="post-content" id="articolo-contenuto"></div>
+  <div style="height:30px"></div>
+  <a href="#" class="section-link" id="torna-al-blog">&larr; Torna al blog</a>
+</section>
+
+<script>
+const BACKEND_URL = "https://spooky-backend-trtr.onrender.com";
+let tuttiIPost = [];
+
+function formattaData(dataISO) {
+  const mesi = ["GENNAIO","FEBBRAIO","MARZO","APRILE","MAGGIO","GIUGNO","LUGLIO","AGOSTO","SETTEMBRE","OTTOBRE","NOVEMBRE","DICEMBRE"];
+  const d = new Date(dataISO);
+  return `${d.getDate()} ${mesi[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function estraiEstratto(html, lunghezza = 150) {
+  const testo = html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  return testo.length > lunghezza ? testo.slice(0, lunghezza) + "..." : testo;
+}
+
+function mostraArticolo(id) {
+  const post = tuttiIPost.find(p => p._id === id);
+  if (!post) return;
+  document.getElementById("articolo-data").textContent = formattaData(post.data).toUpperCase();
+  document.getElementById("articolo-titolo").textContent = post.titolo;
+  document.getElementById("articolo-contenuto").innerHTML = post.contenuto;
+  document.getElementById("vista-lista").classList.add("nascosto");
+  document.getElementById("vista-articolo").classList.remove("nascosto");
+  window.scrollTo(0, 0);
+  history.pushState({}, "", `?post=${id}`);
+}
+
+function tornaAllaLista() {
+  document.getElementById("vista-articolo").classList.add("nascosto");
+  document.getElementById("vista-lista").classList.remove("nascosto");
+  history.pushState({}, "", window.location.pathname);
+}
+
+document.getElementById("torna-al-blog").addEventListener("click", function(e) {
+  e.preventDefault();
+  tornaAllaLista();
+});
+
+async function caricaPost() {
+  const grid = document.getElementById("blog-grid");
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/posts`);
+    const posts = await response.json();
+    tuttiIPost = posts;
+
+    if (posts.length === 0) {
+      grid.innerHTML = '<div class="empty-note">Nessun post ancora pubblicato. Torna presto per nuovi contenuti!</div>';
+      return;
+    }
+
+    grid.innerHTML = "";
+    posts.forEach(post => {
+      const card = document.createElement("button");
+      card.className = "blog-card";
+      card.innerHTML = `
+        <h3>${post.titolo}</h3>
+        <div class="blog-date">${formattaData(post.data).toUpperCase()}</div>
+        <p class="blog-excerpt">${estraiEstratto(post.contenuto)}</p>
+      `;
+      card.addEventListener("click", () => mostraArticolo(post._id));
+      grid.appendChild(card);
+    });
+
+    // Se l'URL contiene ?post=ID, apri direttamente quell'articolo
+    const parametri = new URLSearchParams(window.location.search);
+    const postId = parametri.get("post");
+    if (postId) mostraArticolo(postId);
+
+  } catch (errore) {
+    grid.innerHTML = '<div class="empty-note">Non riesco a caricare i post al momento. Riprova tra poco.</div>';
+    console.error("Errore nel caricamento dei post:", errore);
+  }
+}
+
+caricaPost();
+</script>
 
 
 <section class="newsletter">
