@@ -189,6 +189,14 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 .post-content li{margin-bottom:10px;}
 .post-content strong{font-weight:600;}
 .post-content a{color:var(--blu-titoli);}
+.ig-box{
+  background:radial-gradient(circle at 55% 45%, #1c4f86 0%, #4d8cc4 55%, #7db3de 100%);
+  border-radius:14px;color:#fff;padding:38px 30px;text-align:center;margin:44px 0 24px;
+}
+.ig-box p{font-size:18px;line-height:1.7;margin-bottom:24px;color:#fff;}
+.ig-box .hero-btn{width:auto;}
+#articolo-prossima{margin-bottom:20px;}
+#articolo-prossima a{color:var(--blu-testo);font-size:16px;text-decoration:underline;text-underline-offset:4px;}
 .blog-card{cursor:pointer;border:none;text-align:left;width:100%;font-family:'Poppins',sans-serif;}
 #vista-lista.nascosto,#vista-articolo.nascosto{display:none;}
 @media(min-width:900px){
@@ -270,7 +278,14 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
   <div class="blog-date" id="articolo-data" style="color:var(--blu-testo);margin-bottom:18px;"></div>
   <h2 class="page-title" id="articolo-titolo"></h2>
   <div class="post-content" id="articolo-contenuto"></div>
-  <div style="height:30px"></div>
+
+  <div class="ig-box">
+    <p>Ti &egrave; piaciuta? Ogni giorno una storia da una riga su Instagram.</p>
+    <a href="https://www.instagram.com/_spookymanager_/" target="_blank" rel="noopener" class="hero-btn">Segui @_spookymanager_</a>
+  </div>
+
+  <div id="articolo-prossima"></div>
+
   <a href="#" class="section-link" id="torna-al-blog">&larr; Torna al blog</a>
 </section>
 
@@ -290,11 +305,26 @@ function estraiEstratto(html, lunghezza = 150) {
 }
 
 function mostraArticolo(id) {
-  const post = tuttiIPost.find(p => p._id === id);
-  if (!post) return;
+  const indice = tuttiIPost.findIndex(p => p._id === id);
+  if (indice === -1) return;
+  const post = tuttiIPost[indice];
+
   document.getElementById("articolo-data").textContent = formattaData(post.data).toUpperCase();
   document.getElementById("articolo-titolo").textContent = post.titolo;
   document.getElementById("articolo-contenuto").innerHTML = post.contenuto;
+
+  const contenitoreProssima = document.getElementById("articolo-prossima");
+  const prossimoPost = tuttiIPost[indice + 1];
+  if (prossimoPost) {
+    contenitoreProssima.innerHTML = `<a href="spooky-blog.html?post=${prossimoPost._id}" id="link-prossima-storia">Leggi la prossima storia &rarr;</a>`;
+    document.getElementById("link-prossima-storia").addEventListener("click", function (e) {
+      e.preventDefault();
+      mostraArticolo(prossimoPost._id);
+    });
+  } else {
+    contenitoreProssima.innerHTML = "";
+  }
+
   document.getElementById("vista-lista").classList.add("nascosto");
   document.getElementById("vista-articolo").classList.remove("nascosto");
   window.scrollTo(0, 0);
