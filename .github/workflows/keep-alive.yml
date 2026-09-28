@@ -1,0 +1,13 @@
+name: Tieni sveglio il backend
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Visita il backend su Render
+        run: curl -fsS --max-time 90 https://spooky-backend-trtr.onrender.com/api/posts
