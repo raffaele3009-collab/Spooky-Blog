@@ -262,7 +262,7 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
   <h2 class="blog-title">Diario per Dormiglioni</h2>
   <div style="height:30px"></div>
   <div class="blog-grid" id="blog-grid">
-    <div class="empty-note">Caricamento dei post in corso...</div>
+    <div class="empty-note">Il racconto sta arrivando, qualche secondo di pazienza&hellip;</div>
   </div>
 </section>
 
@@ -312,10 +312,20 @@ document.getElementById("torna-al-blog").addEventListener("click", function(e) {
   tornaAllaLista();
 });
 
-async function caricaPost() {
+const ATTESE_RITENTATIVO = [5000, 10000, 20000];
+
+async function caricaPost(tentativo = 0) {
   const grid = document.getElementById("blog-grid");
+
+  grid.innerHTML = '<div class="empty-note">Il racconto sta arrivando, qualche secondo di pazienza&hellip;</div>';
+  const timerSveglia = setTimeout(() => {
+    grid.innerHTML += '<div class="empty-note" style="margin-top:14px">Il server si sta svegliando, di solito serve meno di un minuto.</div>';
+  }, 8000);
+
   try {
     const response = await fetch(`${BACKEND_URL}/api/posts`);
+    clearTimeout(timerSveglia);
+    if (!response.ok) throw new Error("Risposta non valida (" + response.status + ")");
     const posts = await response.json();
     tuttiIPost = posts;
 
@@ -343,8 +353,21 @@ async function caricaPost() {
     if (postId) mostraArticolo(postId);
 
   } catch (errore) {
-    grid.innerHTML = '<div class="empty-note">Non riesco a caricare i post al momento. Riprova tra poco.</div>';
+    clearTimeout(timerSveglia);
     console.error("Errore nel caricamento dei post:", errore);
+
+    if (tentativo < ATTESE_RITENTATIVO.length) {
+      grid.innerHTML = '<div class="empty-note">Il server si sta svegliando, ritento tra qualche secondo&hellip;</div>';
+      setTimeout(() => caricaPost(tentativo + 1), ATTESE_RITENTATIVO[tentativo]);
+    } else {
+      grid.innerHTML = `
+        <div class="empty-note">
+          Non riesco a caricare i racconti al momento.
+          <div style="height:16px"></div>
+          <button class="hero-btn" style="width:auto;" id="btn-riprova-blog">Riprova</button>
+        </div>`;
+      document.getElementById("btn-riprova-blog").addEventListener("click", () => caricaPost(0));
+    }
   }
 }
 

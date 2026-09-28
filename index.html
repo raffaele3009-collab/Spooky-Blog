@@ -259,18 +259,26 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
   <a href="spooky-blog.html" class="section-link">Visualizza tutto</a>
   <div style="height:30px"></div>
   <div class="blog-carousel" id="home-blog-carousel">
-    <div class="empty-note">Caricamento...</div>
+    <div class="empty-note">Il racconto sta arrivando, qualche secondo di pazienza&hellip;</div>
   </div>
 </section>
 
 <script>
-(async function caricaUltimoPost() {
-  const BACKEND_URL = "https://spooky-backend-trtr.onrender.com";
-  const contenitore = document.getElementById("home-blog-carousel");
-  const mesi = ["GENNAIO","FEBBRAIO","MARZO","APRILE","MAGGIO","GIUGNO","LUGLIO","AGOSTO","SETTEMBRE","OTTOBRE","NOVEMBRE","DICEMBRE"];
+const BACKEND_URL = "https://spooky-backend-trtr.onrender.com";
+const ATTESE_RITENTATIVO_HOME = [5000, 10000, 20000];
+const contenitore = document.getElementById("home-blog-carousel");
+const mesi = ["GENNAIO","FEBBRAIO","MARZO","APRILE","MAGGIO","GIUGNO","LUGLIO","AGOSTO","SETTEMBRE","OTTOBRE","NOVEMBRE","DICEMBRE"];
+
+async function caricaUltimoPost(tentativo = 0) {
+  contenitore.innerHTML = '<div class="empty-note">Il racconto sta arrivando, qualche secondo di pazienza&hellip;</div>';
+  const timerSveglia = setTimeout(() => {
+    contenitore.innerHTML += '<div class="empty-note" style="margin-top:14px">Il server si sta svegliando, di solito serve meno di un minuto.</div>';
+  }, 8000);
 
   try {
     const response = await fetch(`${BACKEND_URL}/api/posts`);
+    clearTimeout(timerSveglia);
+    if (!response.ok) throw new Error("Risposta non valida (" + response.status + ")");
     const posts = await response.json();
 
     if (posts.length === 0) {
@@ -293,10 +301,25 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
       <div class="blog-next-peek"></div>
     `;
   } catch (errore) {
-    contenitore.innerHTML = '<div class="empty-note">Non riesco a caricare il blog al momento.</div>';
+    clearTimeout(timerSveglia);
     console.error("Errore nel caricamento del post:", errore);
+
+    if (tentativo < ATTESE_RITENTATIVO_HOME.length) {
+      contenitore.innerHTML = '<div class="empty-note">Il server si sta svegliando, ritento tra qualche secondo&hellip;</div>';
+      setTimeout(() => caricaUltimoPost(tentativo + 1), ATTESE_RITENTATIVO_HOME[tentativo]);
+    } else {
+      contenitore.innerHTML = `
+        <div class="empty-note">
+          Non riesco a caricare il blog al momento.
+          <div style="height:16px"></div>
+          <button class="hero-btn" style="width:auto;" id="btn-riprova-home">Riprova</button>
+        </div>`;
+      document.getElementById("btn-riprova-home").addEventListener("click", () => caricaUltimoPost(0));
+    }
   }
-})();
+}
+
+caricaUltimoPost();
 </script>
 
 <section class="section chi">
