@@ -263,7 +263,7 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
   <div class="foot-cols-wrap">
     <div class="foot-col"><h3>Link rapidi</h3><a href="spooky-blog.html">Storie</a></div>
     <div class="foot-col"><h3>Instagram</h3><a href="https://www.instagram.com/_spookymanager_/" target="_blank" rel="noopener">_Spookymanager_</a></div>
-    <div class="foot-col"><h3>Gmail</h3><a href="https://mail.google.com/mail/?view=cm&fs=1&to=Spookymanager20@gmail.com" target="_blank" rel="noopener">Spookymanager20@gmail.com</a></div>
+    <div class="foot-col"><h3>Gmail</h3><a href="https://mail.google.com/mail/?view=cm&fs=1&to=Spookymanager20@gmail.com" target="_blank" rel="noopener" data-email-gmail>Spookymanager20@gmail.com</a></div>
     <div class="foot-col"><h3>Facebook</h3><a href="https://www.facebook.com/profile.php?id=61589471631251" target="_blank" rel="noopener">Spookymanager</a></div>
   </div>
   <div class="foot-social-center">
@@ -277,6 +277,17 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 </footer>
 <script>
 document.querySelectorAll('.announce-js').forEach(function(t){t.innerHTML+=t.innerHTML;t.innerHTML+=t.innerHTML;});
+</script>
+<script>
+// Su telefono, i link email aprono direttamente l'app di posta (mailto)
+// invece della pagina web di Gmail, che spesso chiede l'accesso ogni volta.
+if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+  document.querySelectorAll('a[data-email-gmail]').forEach(function (a) {
+    var oggetto = a.getAttribute('data-email-subject');
+    a.href = 'mailto:Spookymanager20@gmail.com' + (oggetto ? '?subject=' + oggetto : '');
+    a.removeAttribute('target');
+  });
+}
 </script>
 
 </body>

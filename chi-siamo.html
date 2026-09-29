@@ -252,21 +252,28 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
     <ellipse cx="63" cy="41" rx="10.5" ry="15" fill="#f0ede5"/>
   </svg>
   <h2 class="page-title">Chi sono</h2>
-  
-  <h3>Presentazioni</h3>
-  <p>Ciao! Io sono Raffaele, il fondatore di Spooky. Questa ditta nasce con lo scopo di diffondere nel mondo, inizialmente in Italia, la mia visione. Quella di un mondo migliore dove le persone possano vivere in Serenit&agrave; ed Armonia.</p>
-  <h3>Perch&eacute; Spooky</h3>
-  <p>Iniziando dal perch&eacute;. Tutto parte da una necessit&agrave; mia, quella di farmi sentire, di far valere i miei ideali in una societ&agrave; dove chi &egrave; buono si sente escluso e per niente benvoluto.</p>
-  <p>Quindi visto che il mondo cos&igrave; come ce lo hanno venduto non mi piaceva, ne ho creato uno mio.</p>
-  <p>Il logo del brand nasce in una conversazione al mare con il mio socio non che migliore amico.</p>
-  <p>Da quei giorni ormai sono passati anni. Il progetto Spooky nasce nel 30 settembre 2023. Partendo con il lancio del nostro prodotto brandizzato.</p>
-  <p>Anche il cappellino nasce da una nostra necessit&agrave;, non trovavo nessun cappellino che valesse la pena indossare, ed essendo capellone ne avevo bisogno. Cos&igrave; mi sono affidato ad una ditta che ne ha fatto uno su misura per me, ed adesso quella stessa ditta &egrave; il mio fornitore principale.</p>
-  <p><strong>Tutto questo nasce per noi e viene mostrato anche a voi.</strong></p>
-  <h3>Nuovi Lanci e Progetti</h3>
-  <p>Ora con attenta analisi stiamo cercando di creare su Spooky una piattaforma interattiva per vari scrittori dove pubblicare racconti e saggi brevi, anche questo sempre per nostra necessit&agrave;.</p>
-  <p style="margin-top:60px">Questi siamo noi, sempre indaffarati ed in continua crescita. Unisciti a questa avventura e concediti la libert&agrave; di essere stravagante a modo tuo, di essere te stesso.</p>
+
+  <div id="chi-sono-contenuto">
+    <p>Caricamento...</p>
+  </div>
 
 </section>
+
+<script>
+(async function caricaChiSono() {
+  const BACKEND_URL = "https://spooky-backend-trtr.onrender.com";
+  const contenitore = document.getElementById("chi-sono-contenuto");
+  try {
+    const risposta = await fetch(`${BACKEND_URL}/api/pagina/chi-siamo`);
+    if (!risposta.ok) throw new Error("Pagina non trovata (" + risposta.status + ")");
+    const dati = await risposta.json();
+    contenitore.innerHTML = dati.contenuto;
+  } catch (errore) {
+    contenitore.innerHTML = '<p>Non riesco a caricare questa sezione al momento. Riprova tra poco.</p>';
+    console.error("Errore caricamento Chi sono:", errore);
+  }
+})();
+</script>
 
 
 
@@ -274,7 +281,7 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
   <div class="foot-cols-wrap">
     <div class="foot-col"><h3>Link rapidi</h3><a href="spooky-blog.html">Storie</a></div>
     <div class="foot-col"><h3>Instagram</h3><a href="https://www.instagram.com/_spookymanager_/" target="_blank" rel="noopener">_Spookymanager_</a></div>
-    <div class="foot-col"><h3>Gmail</h3><a href="https://mail.google.com/mail/?view=cm&fs=1&to=Spookymanager20@gmail.com" target="_blank" rel="noopener">Spookymanager20@gmail.com</a></div>
+    <div class="foot-col"><h3>Gmail</h3><a href="https://mail.google.com/mail/?view=cm&fs=1&to=Spookymanager20@gmail.com" target="_blank" rel="noopener" data-email-gmail>Spookymanager20@gmail.com</a></div>
     <div class="foot-col"><h3>Facebook</h3><a href="https://www.facebook.com/profile.php?id=61589471631251" target="_blank" rel="noopener">Spookymanager</a></div>
   </div>
   <div class="foot-social-center">
@@ -288,6 +295,17 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 </footer>
 <script>
 document.querySelectorAll('.announce-js').forEach(function(t){t.innerHTML+=t.innerHTML;t.innerHTML+=t.innerHTML;});
+</script>
+<script>
+// Su telefono, i link email aprono direttamente l'app di posta (mailto)
+// invece della pagina web di Gmail, che spesso chiede l'accesso ogni volta.
+if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+  document.querySelectorAll('a[data-email-gmail]').forEach(function (a) {
+    var oggetto = a.getAttribute('data-email-subject');
+    a.href = 'mailto:Spookymanager20@gmail.com' + (oggetto ? '?subject=' + oggetto : '');
+    a.removeAttribute('target');
+  });
+}
 </script>
 
 </body>
