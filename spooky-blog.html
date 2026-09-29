@@ -200,6 +200,7 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 .menu-account .avatar{width:44px;height:44px;border-radius:50%;background:#fff;color:#2a6bb0;display:flex;align-items:center;justify-content:center;font-weight:500;font-size:20px;}
 .post-content{font-size:19px;line-height:2;color:var(--blu-testo);}
 .post-content p{margin-bottom:26px;text-align:justify;}
+.post-content.poesia p{text-align:left;}
 .post-content h1,.post-content h2,.post-content h3{color:var(--blu-scuro-titoli);font-weight:600;margin:40px 0 18px;}
 .post-content h1{font-size:30px;}
 .post-content h2{font-size:26px;}
@@ -364,7 +365,9 @@ function mostraArticolo(id) {
   const post = tuttiIPost[indice];
 
   document.getElementById("articolo-titolo").textContent = post.titolo;
-  document.getElementById("articolo-contenuto").innerHTML = post.contenuto;
+  const contenutoArticolo = document.getElementById("articolo-contenuto");
+  contenutoArticolo.innerHTML = post.contenuto;
+  contenutoArticolo.classList.toggle("poesia", post.categoria === "poesie");
 
   const contenitoreProssima = document.getElementById("articolo-prossima");
   const prossimoPost = tuttiIPost[indice + 1];
