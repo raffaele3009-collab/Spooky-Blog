@@ -115,12 +115,12 @@ header{
 .blog-card h3{font-size:30px;font-weight:500;margin-bottom:22px;line-height:1.25;color:#fff;}
 .blog-date{font-size:13px;letter-spacing:.22em;margin-bottom:26px;font-weight:400;}
 .blog-excerpt{font-size:19px;line-height:1.85;color:#dce8f2;}
-.blog-carousel{display:flex;gap:18px;overflow:hidden;}
-.blog-carousel .blog-card{min-width:92%;}
-.blog-next-peek{
-  background:radial-gradient(circle at 40% 45%, #1c4f86 0%, #4d8cc4 60%, #7db3de 100%);
-  border-radius:14px;min-width:4%;
+.blog-carousel{
+  display:flex;gap:18px;overflow-x:auto;padding-bottom:6px;
+  scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;
 }
+.blog-carousel .blog-card{min-width:85%;scroll-snap-align:start;}
+@media(min-width:900px){.blog-carousel .blog-card{min-width:340px;}}
 .pagination{display:flex;align-items:center;justify-content:center;gap:36px;margin-top:34px;color:var(--blu-titoli);font-size:17px;}
 .pagination button{background:none;border:none;color:var(--blu-titoli);font-size:22px;cursor:pointer;}
 .chi p{font-size:19px;line-height:2;margin-bottom:30px;}
@@ -223,7 +223,7 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
       <ellipse cx="63" cy="41" rx="10.5" ry="15" fill="#f0ede5"/>
     </svg></a>
   <div class="header-icons">
-    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+    <a href="spooky-blog.html?cerca=aperta" aria-label="Cerca"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg></a>
   </div>
 </header>
 
@@ -248,7 +248,7 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 
 
 <section class="hero">
-  <svg class="hero-bg" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <svg class="hero-bg" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <g fill="#f0ede5" opacity="0.8">
       <circle cx="90" cy="60" r="3"/>
       <circle cx="170" cy="110" r="2"/>
@@ -352,24 +352,9 @@ function estraiEstrattoHome(html, lunghezza = 150) {
   return testo.length > lunghezza ? testo.slice(0, lunghezza) + "..." : testo;
 }
 
-function mostraCardSingola(contenitore, post, messaggioVuoto) {
-  if (!post) {
-    contenitore.innerHTML = `<div class="empty-note">${messaggioVuoto}</div>`;
-    return;
-  }
-  contenitore.innerHTML = `
-    <a class="blog-card" href="spooky-blog.html?post=${post._id}">
-      <h3>${post.titolo}</h3>
-      <div class="blog-date">${formattaDataHome(post.data).toUpperCase()}</div>
-      <p class="blog-excerpt">${estraiEstrattoHome(post.contenuto)}</p>
-    </a>
-    <div class="blog-next-peek"></div>
-  `;
-}
-
-function mostraUltimeStorie(contenitore, posts) {
+function mostraCards(contenitore, posts, messaggioVuoto) {
   if (posts.length === 0) {
-    contenitore.innerHTML = '<div class="empty-note">Presto nuovi contenuti sul blog!</div>';
+    contenitore.innerHTML = `<div class="empty-note">${messaggioVuoto}</div>`;
     return;
   }
   contenitore.innerHTML = posts.map(post => `
@@ -396,12 +381,12 @@ async function caricaHome(tentativo = 0) {
     if (!response.ok) throw new Error("Risposta non valida (" + response.status + ")");
     const posts = await response.json();
 
-    const postDiario = posts.find(p => (p.categoria || "diario") === "diario");
-    const postStorie = posts.find(p => p.categoria === "storie");
+    const postiDiario = posts.filter(p => (p.categoria || "diario") === "diario");
+    const postiStorie = posts.filter(p => p.categoria === "storie");
 
-    mostraCardSingola(contDiario, postDiario, "Presto nuovi contenuti sul blog!");
-    mostraCardSingola(contStorie, postStorie, "Presto nuove storie qui!");
-    mostraUltimeStorie(contUltime, posts.slice(0, 3));
+    mostraCards(contDiario, postiDiario, "Presto nuovi contenuti sul blog!");
+    mostraCards(contStorie, postiStorie, "Presto nuove storie qui!");
+    mostraCards(contUltime, posts.slice(0, 3), "Presto nuovi contenuti sul blog!");
 
   } catch (errore) {
     clearTimeout(timerSveglia);
@@ -468,12 +453,11 @@ caricaHome();
   <div class="foot-social-center"><svg fill="#fff" viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12c0 5 3.7 9.1 8.4 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7C18.3 21.1 22 17 22 12c0-5.5-4.5-10-10-10z"/></svg><svg fill="#fff" viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2-.1-1.3-.1-1.7-.1-4.9s0-3.6.1-4.9c.1-1.2.2-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4 1.3-.1 1.7-.1 4.9-.1zm0 1.8c-3.1 0-3.5 0-4.8.1-1.1.1-1.5.2-1.8.3-.5.2-.8.4-1.1.7-.3.3-.5.6-.7 1.1-.1.3-.3.7-.3 1.8-.1 1.3-.1 1.6-.1 4.8s0 3.5.1 4.8c.1 1.1.2 1.5.3 1.8.2.5.4.8.7 1.1.3.3.6.5 1.1.7.3.1.7.3 1.8.3 1.3.1 1.6.1 4.8.1s3.5 0 4.8-.1c1.1-.1 1.5-.2 1.8-.3.5-.2.8-.4 1.1-.7.3-.3.5-.6.7-1.1.1-.3.3-.7.3-1.8.1-1.3.1-1.6.1-4.8s0-3.5-.1-4.8c-.1-1.1-.2-1.5-.3-1.8-.2-.5-.4-.8-.7-1.1-.3-.3-.6-.5-1.1-.7-.3-.1-.7-.3-1.8-.3-1.3-.1-1.6-.1-4.8-.1zm0 3.1a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 1.8a3.2 3.2 0 1 0 0 6.4 3.2 3.2 0 0 0 0-6.4zm5.2-2.2a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4z"/></svg></div>
   <div class="foot-divider"></div>
   <div class="foot-legal">
-    &copy; 2026, Spooky &nbsp;&middot;&nbsp; <a href="#">Informativa sulla privacy</a><br>
-    &middot;&nbsp; <a href="#">Informativa sui rimborsi</a> &nbsp;&middot;&nbsp; <a href="#">Recapiti</a> &nbsp;&middot;&nbsp; <a href="#">Informativa sulle spedizioni</a>
+    &copy; 2026, Spooky &nbsp;&middot;&nbsp; <a href="#">Informativa sulla privacy</a> &nbsp;&middot;&nbsp; <a href="contattaci.html">Recapiti</a>
   </div>
 </footer>
 <script>
-document.querySelectorAll('.announce-js').forEach(function(t){t.innerHTML+=t.innerHTML;});
+document.querySelectorAll('.announce-js').forEach(function(t){t.innerHTML+=t.innerHTML;t.innerHTML+=t.innerHTML;});
 </script>
 
 </body>
