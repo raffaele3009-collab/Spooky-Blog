@@ -115,6 +115,11 @@ header{
 .blog-card h3{font-size:30px;font-weight:500;margin-bottom:22px;line-height:1.25;color:#fff;}
 .blog-date{font-size:13px;letter-spacing:.22em;margin-bottom:26px;font-weight:400;}
 .blog-excerpt{font-size:19px;line-height:1.85;color:#dce8f2;}
+.blog-tag-riga{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px;}
+.blog-tag{
+  font-size:12px;letter-spacing:.06em;text-transform:uppercase;
+  color:#fff;background:rgba(255,255,255,.18);border-radius:20px;padding:4px 12px;
+}
 .blog-carousel{display:flex;gap:18px;overflow:hidden;}
 .blog-carousel .blog-card{min-width:92%;}
 .blog-next-peek{
@@ -389,10 +394,12 @@ function riempiGriglia(grid, posts, messaggioVuoto) {
   posts.forEach(post => {
     const card = document.createElement("button");
     card.className = "blog-card";
+    const paroleChiave = post.paroleChiave || [];
     card.innerHTML = `
       <h3>${post.titolo}</h3>
       <div class="blog-date">${formattaData(post.data).toUpperCase()}</div>
       <p class="blog-excerpt">${estraiEstratto(post.contenuto)}</p>
+      ${paroleChiave.length ? `<div class="blog-tag-riga">${paroleChiave.map(p => `<span class="blog-tag">${p}</span>`).join("")}</div>` : ""}
     `;
     card.addEventListener("click", () => mostraArticolo(post._id));
     grid.appendChild(card);
@@ -455,7 +462,8 @@ async function caricaPost(tentativo = 0) {
 function corrispondeRicerca(post, termine) {
   if (!termine) return true;
   const testoPlain = post.contenuto.replace(/<[^>]*>/g, " ").toLowerCase();
-  return post.titolo.toLowerCase().includes(termine) || testoPlain.includes(termine);
+  const paroleChiave = (post.paroleChiave || []).join(" ").toLowerCase();
+  return post.titolo.toLowerCase().includes(termine) || testoPlain.includes(termine) || paroleChiave.includes(termine);
 }
 
 function applicaFiltro() {
@@ -495,11 +503,13 @@ caricaPost();
   <div class="foot-cols-wrap">
     <div class="foot-col"><h3>Link rapidi</h3><a href="spooky-blog.html">Storie</a></div>
     <div class="foot-col"><h3>Instagram</h3><a href="https://www.instagram.com/_spookymanager_/" target="_blank" rel="noopener">_Spookymanager_</a></div>
-    <div class="foot-col"><h3>Gmail</h3><a href="mailto:Spookymanager20@gmail.com">Spookymanager20@gmail.com</a></div>
+    <div class="foot-col"><h3>Gmail</h3><a href="https://mail.google.com/mail/?view=cm&fs=1&to=Spookymanager20@gmail.com" target="_blank" rel="noopener">Spookymanager20@gmail.com</a></div>
     <div class="foot-col"><h3>Facebook</h3><a href="https://www.facebook.com/profile.php?id=61589471631251" target="_blank" rel="noopener">Spookymanager</a></div>
   </div>
-  <div class="foot-social"><svg viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12c0 5 3.7 9.1 8.4 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7C18.3 21.1 22 17 22 12c0-5.5-4.5-10-10-10z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2-.1-1.3-.1-1.7-.1-4.9s0-3.6.1-4.9c.1-1.2.2-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4 1.3-.1 1.7-.1 4.9-.1zm0 1.8c-3.1 0-3.5 0-4.8.1-1.1.1-1.5.2-1.8.3-.5.2-.8.4-1.1.7-.3.3-.5.6-.7 1.1-.1.3-.3.7-.3 1.8-.1 1.3-.1 1.6-.1 4.8s0 3.5.1 4.8c.1 1.1.2 1.5.3 1.8.2.5.4.8.7 1.1.3.3.6.5 1.1.7.3.1.7.3 1.8.3 1.3.1 1.6.1 4.8.1s3.5 0 4.8-.1c1.1-.1 1.5-.2 1.8-.3.5-.2.8-.4 1.1-.7.3-.3.5-.6.7-1.1.1-.3.3-.7.3-1.8.1-1.3.1-1.6.1-4.8s0-3.5-.1-4.8c-.1-1.1-.2-1.5-.3-1.8-.2-.5-.4-.8-.7-1.1-.3-.3-.6-.5-1.1-.7-.3-.1-.7-.3-1.8-.3-1.3-.1-1.6-.1-4.8-.1zm0 3.1a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 1.8a3.2 3.2 0 1 0 0 6.4 3.2 3.2 0 0 0 0-6.4zm5.2-2.2a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4z"/></svg></div>
-  <div class="foot-social-center"><svg fill="#fff" viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12c0 5 3.7 9.1 8.4 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7C18.3 21.1 22 17 22 12c0-5.5-4.5-10-10-10z"/></svg><svg fill="#fff" viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2-.1-1.3-.1-1.7-.1-4.9s0-3.6.1-4.9c.1-1.2.2-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4 1.3-.1 1.7-.1 4.9-.1zm0 1.8c-3.1 0-3.5 0-4.8.1-1.1.1-1.5.2-1.8.3-.5.2-.8.4-1.1.7-.3.3-.5.6-.7 1.1-.1.3-.3.7-.3 1.8-.1 1.3-.1 1.6-.1 4.8s0 3.5.1 4.8c.1 1.1.2 1.5.3 1.8.2.5.4.8.7 1.1.3.3.6.5 1.1.7.3.1.7.3 1.8.3 1.3.1 1.6.1 4.8.1s3.5 0 4.8-.1c1.1-.1 1.5-.2 1.8-.3.5-.2.8-.4 1.1-.7.3-.3.5-.6.7-1.1.1-.3.3-.7.3-1.8.1-1.3.1-1.6.1-4.8s0-3.5-.1-4.8c-.1-1.1-.2-1.5-.3-1.8-.2-.5-.4-.8-.7-1.1-.3-.3-.6-.5-1.1-.7-.3-.1-.7-.3-1.8-.3-1.3-.1-1.6-.1-4.8-.1zm0 3.1a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 1.8a3.2 3.2 0 1 0 0 6.4 3.2 3.2 0 0 0 0-6.4zm5.2-2.2a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4z"/></svg></div>
+  <div class="foot-social-center">
+    <a href="https://www.facebook.com/profile.php?id=61589471631251" target="_blank" rel="noopener" aria-label="Facebook"><svg fill="#fff" viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12c0 5 3.7 9.1 8.4 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7C18.3 21.1 22 17 22 12c0-5.5-4.5-10-10-10z"/></svg></a>
+    <a href="https://www.instagram.com/_spookymanager_/" target="_blank" rel="noopener" aria-label="Instagram"><svg fill="#fff" viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2-.1-1.3-.1-1.7-.1-4.9s0-3.6.1-4.9c.1-1.2.2-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4 1.3-.1 1.7-.1 4.9-.1zm0 1.8c-3.1 0-3.5 0-4.8.1-1.1.1-1.5.2-1.8.3-.5.2-.8.4-1.1.7-.3.3-.5.6-.7 1.1-.1.3-.3.7-.3 1.8-.1 1.3-.1 1.6-.1 4.8s0 3.5.1 4.8c.1 1.1.2 1.5.3 1.8.2.5.4.8.7 1.1.3.3.6.5 1.1.7.3.1.7.3 1.8.3 1.3.1 1.6.1 4.8.1s3.5 0 4.8-.1c1.1-.1 1.5-.2 1.8-.3.5-.2.8-.4 1.1-.7.3-.3.5-.6.7-1.1.1-.3.3-.7.3-1.8.1-1.3.1-1.6.1-4.8s0-3.5-.1-4.8c-.1-1.1-.2-1.5-.3-1.8-.2-.5-.4-.8-.7-1.1-.3-.3-.6-.5-1.1-.7-.3-.1-.7-.3-1.8-.3-1.3-.1-1.6-.1-4.8-.1zm0 3.1a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 1.8a3.2 3.2 0 1 0 0 6.4 3.2 3.2 0 0 0 0-6.4zm5.2-2.2a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4z"/></svg></a>
+  </div>
   <div class="foot-divider"></div>
   <div class="foot-legal">
     &copy; 2026, Spooky &nbsp;&middot;&nbsp; <a href="#">Informativa sulla privacy</a> &nbsp;&middot;&nbsp; <a href="contattaci.html">Recapiti</a>
