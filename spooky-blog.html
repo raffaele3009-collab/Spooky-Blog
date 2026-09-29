@@ -105,27 +105,30 @@ header{
 .blog-title{color:var(--blu-scuro-titoli);font-size:40px;font-weight:500;margin-bottom:0;}
 .blog-title-riga{display:flex;align-items:center;gap:16px;margin-bottom:10px;}
 .blog-title-riga svg{flex-shrink:0;}
-.blog-grid{display:grid;grid-template-columns:1fr;gap:22px;}
-.blog-card{
+.blog-excerpt{font-size:16px;line-height:1.75;color:#dce8f2;}
+.blog-acc-lista{display:flex;flex-direction:column;gap:14px;}
+.blog-acc-item{
   background:radial-gradient(circle at 55% 45%, #1c4f86 0%, #4d8cc4 55%, #7db3de 100%);
-  border-radius:14px;color:#fff;
-  padding:44px 38px 90px;
-  display:block;text-decoration:none;
+  border-radius:14px;color:#fff;padding:20px 22px;
+  transition:transform .15s ease, box-shadow .15s ease;
 }
-.blog-card h3{font-size:30px;font-weight:500;margin-bottom:22px;line-height:1.25;color:#fff;}
-.blog-date{font-size:13px;letter-spacing:.22em;margin-bottom:26px;font-weight:400;}
-.blog-excerpt{font-size:19px;line-height:1.85;color:#dce8f2;}
-.blog-tag-riga{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px;}
-.blog-tag{
-  font-size:12px;letter-spacing:.06em;text-transform:uppercase;
-  color:#fff;background:rgba(255,255,255,.18);border-radius:20px;padding:4px 12px;
+.blog-acc-item:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(29,78,137,.28);}
+.blog-acc-item:active{transform:scale(.98);}
+.blog-acc-riga{display:flex;align-items:center;justify-content:space-between;gap:14px;}
+.blog-acc-titolo{
+  color:#fff;font-size:20px;font-weight:500;line-height:1.35;
+  text-decoration:none;background:none;border:none;text-align:left;
+  font-family:'Poppins',sans-serif;cursor:pointer;flex:1;letter-spacing:.02em;
 }
-.blog-carousel{display:flex;gap:18px;overflow:hidden;}
-.blog-carousel .blog-card{min-width:92%;}
-.blog-next-peek{
-  background:radial-gradient(circle at 40% 45%, #1c4f86 0%, #4d8cc4 60%, #7db3de 100%);
-  border-radius:14px;min-width:4%;
+.blog-acc-freccia{
+  background:rgba(255,255,255,.16);border:none;border-radius:50%;
+  width:34px;height:34px;flex-shrink:0;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
 }
+.blog-acc-freccia svg{width:18px;height:18px;stroke:#fff;transition:transform .3s ease;}
+.blog-acc-freccia.aperta svg{transform:rotate(180deg);}
+.blog-acc-corpo{max-height:0;overflow:hidden;opacity:0;margin-top:0;transition:max-height .35s ease, opacity .3s ease, margin-top .3s ease;}
+.blog-acc-corpo.aperta{max-height:400px;opacity:1;margin-top:16px;}
 .barra-ricerca{display:none;padding:24px 20px 0;max-width:640px;margin:0 auto;}
 .barra-ricerca.aperta{display:block;}
 .barra-ricerca input{
@@ -183,9 +186,12 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 .menu-overlay{
   position:fixed;inset:0;z-index:200;
   background:radial-gradient(circle at 50% 55%, #1c4f86 0%, #4d8cc4 55%, #8ab8de 100%);
-  display:none;flex-direction:column;
+  display:flex;flex-direction:column;
+  opacity:0;visibility:hidden;transform:translateY(-16px);
+  transition:opacity .28s ease, transform .28s ease, visibility .28s ease;
+  pointer-events:none;
 }
-.menu-overlay.open{display:flex;}
+.menu-overlay.open{opacity:1;visibility:visible;transform:translateY(0);pointer-events:auto;}
 .menu-top{display:flex;align-items:center;justify-content:space-between;padding:26px 30px;position:relative;}
 .menu-close{background:none;border:none;cursor:pointer;color:#fff;font-size:34px;font-weight:300;line-height:1;}
 .menu-links{padding:60px 40px;display:flex;flex-direction:column;gap:52px;flex:1;}
@@ -211,11 +217,11 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 .ig-box .hero-btn{width:auto;}
 #articolo-prossima{margin-bottom:20px;}
 #articolo-prossima a{color:var(--blu-testo);font-size:16px;text-decoration:underline;text-underline-offset:4px;}
-.blog-card{cursor:pointer;border:none;text-align:left;width:100%;font-family:'Poppins',sans-serif;}
 #vista-lista.nascosto,#vista-articolo.nascosto{display:none;}
+@keyframes fadeInSu{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+#vista-lista:not(.nascosto),#vista-articolo:not(.nascosto){animation:fadeInSu .35s ease;}
 @media(min-width:900px){
   .products{grid-template-columns:repeat(4,1fr);}
-  .blog-grid{grid-template-columns:repeat(3,1fr);}
   .hero-title{font-size:60px;}
   .section{padding:60px 60px;}
   footer{padding:66px 60px 40px;}
@@ -264,7 +270,7 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 <div class="announce">
   <div class="announce-track announce-js">
     <span class="announce-item">
-      SEGUICI SU INSTAGRAM
+      SEGUIMI SU INSTAGRAM
       <svg class="announce-ghost" style="" viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg">
       <path fill="#ffffff" d="M50 3 C26 3 11 22 11 46 L11 93 C11 98 14 100 18 99 C23 98 26 95 31 96 C37 97 42 100 50 100 C58 100 63 97 69 96 C74 95 77 98 82 99 C86 100 89 98 89 93 L89 46 C89 22 74 3 50 3 Z"/>
       <ellipse cx="37" cy="41" rx="10.5" ry="15" fill="#2a8fd4"/>
@@ -295,7 +301,7 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
     <h2 class="blog-title">Diario per Dormiglioni</h2>
   </div>
   <div style="height:30px"></div>
-  <div class="blog-grid" id="blog-grid-diario">
+  <div class="blog-acc-lista" id="blog-grid-diario">
     <div class="empty-note">Il racconto sta arrivando, qualche secondo di pazienza&hellip;</div>
   </div>
 
@@ -310,13 +316,12 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
     <h2 class="blog-title">Racconti dal buio</h2>
   </div>
   <div style="height:30px"></div>
-  <div class="blog-grid" id="blog-grid-storie">
+  <div class="blog-acc-lista" id="blog-grid-storie">
     <div class="empty-note">Il racconto sta arrivando, qualche secondo di pazienza&hellip;</div>
   </div>
 </section>
 
 <section class="section chi nascosto" id="vista-articolo">
-  <div class="blog-date" id="articolo-data" style="color:var(--blu-testo);margin-bottom:18px;"></div>
   <h2 class="page-title" id="articolo-titolo"></h2>
   <div class="post-content" id="articolo-contenuto"></div>
 
@@ -334,12 +339,6 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 const BACKEND_URL = "https://spooky-backend-trtr.onrender.com";
 let tuttiIPost = [];
 
-function formattaData(dataISO) {
-  const mesi = ["GENNAIO","FEBBRAIO","MARZO","APRILE","MAGGIO","GIUGNO","LUGLIO","AGOSTO","SETTEMBRE","OTTOBRE","NOVEMBRE","DICEMBRE"];
-  const d = new Date(dataISO);
-  return `${d.getDate()} ${mesi[d.getMonth()]} ${d.getFullYear()}`;
-}
-
 function estraiEstratto(html, lunghezza = 150) {
   const testo = html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
   return testo.length > lunghezza ? testo.slice(0, lunghezza) + "..." : testo;
@@ -350,7 +349,6 @@ function mostraArticolo(id) {
   if (indice === -1) return;
   const post = tuttiIPost[indice];
 
-  document.getElementById("articolo-data").textContent = formattaData(post.data).toUpperCase();
   document.getElementById("articolo-titolo").textContent = post.titolo;
   document.getElementById("articolo-contenuto").innerHTML = post.contenuto;
 
@@ -392,17 +390,28 @@ function riempiGriglia(grid, posts, messaggioVuoto) {
   }
   grid.innerHTML = "";
   posts.forEach(post => {
-    const card = document.createElement("button");
-    card.className = "blog-card";
-    const paroleChiave = post.paroleChiave || [];
-    card.innerHTML = `
-      <h3>${post.titolo}</h3>
-      <div class="blog-date">${formattaData(post.data).toUpperCase()}</div>
-      <p class="blog-excerpt">${estraiEstratto(post.contenuto)}</p>
-      ${paroleChiave.length ? `<div class="blog-tag-riga">${paroleChiave.map(p => `<span class="blog-tag">${p}</span>`).join("")}</div>` : ""}
+    const item = document.createElement("div");
+    item.className = "blog-acc-item";
+    item.innerHTML = `
+      <div class="blog-acc-riga">
+        <button type="button" class="blog-acc-titolo">${post.titolo}</button>
+        <button type="button" class="blog-acc-freccia aperta" aria-expanded="true" aria-label="Mostra o nascondi l'anteprima">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </div>
+      <div class="blog-acc-corpo aperta">
+        <p class="blog-excerpt">${estraiEstratto(post.contenuto)}</p>
+      </div>
     `;
-    card.addEventListener("click", () => mostraArticolo(post._id));
-    grid.appendChild(card);
+    item.querySelector(".blog-acc-titolo").addEventListener("click", () => mostraArticolo(post._id));
+    item.querySelector(".blog-acc-freccia").addEventListener("click", function () {
+      const corpo = item.querySelector(".blog-acc-corpo");
+      const apri = !corpo.classList.contains("aperta");
+      corpo.classList.toggle("aperta", apri);
+      this.classList.toggle("aperta", apri);
+      this.setAttribute("aria-expanded", String(apri));
+    });
+    grid.appendChild(item);
   });
 }
 

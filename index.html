@@ -106,27 +106,30 @@ header{
 .blog-title{color:var(--blu-scuro-titoli);font-size:40px;font-weight:500;margin-bottom:0;}
 .blog-title-riga{display:flex;align-items:center;gap:16px;margin-bottom:10px;}
 .blog-title-riga svg{flex-shrink:0;}
-.blog-grid{display:grid;grid-template-columns:1fr;gap:22px;}
-.blog-card{
+.blog-excerpt{font-size:16px;line-height:1.75;color:#dce8f2;}
+.blog-acc-lista{display:flex;flex-direction:column;gap:14px;}
+.blog-acc-item{
   background:radial-gradient(circle at 55% 45%, #1c4f86 0%, #4d8cc4 55%, #7db3de 100%);
-  border-radius:14px;color:#fff;
-  padding:44px 38px 90px;
-  display:block;text-decoration:none;
+  border-radius:14px;color:#fff;padding:20px 22px;
+  transition:transform .15s ease, box-shadow .15s ease;
 }
-.blog-card h3{font-size:30px;font-weight:500;margin-bottom:22px;line-height:1.25;color:#fff;}
-.blog-date{font-size:13px;letter-spacing:.22em;margin-bottom:26px;font-weight:400;}
-.blog-excerpt{font-size:19px;line-height:1.85;color:#dce8f2;}
-.blog-tag-riga{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px;}
-.blog-tag{
-  font-size:12px;letter-spacing:.06em;text-transform:uppercase;
-  color:#fff;background:rgba(255,255,255,.18);border-radius:20px;padding:4px 12px;
+.blog-acc-item:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(29,78,137,.28);}
+.blog-acc-item:active{transform:scale(.98);}
+.blog-acc-riga{display:flex;align-items:center;justify-content:space-between;gap:14px;}
+.blog-acc-titolo{
+  color:#fff;font-size:20px;font-weight:500;line-height:1.35;
+  text-decoration:none;background:none;border:none;text-align:left;
+  font-family:'Poppins',sans-serif;cursor:pointer;flex:1;letter-spacing:.02em;
 }
-.blog-carousel{
-  display:flex;gap:18px;overflow-x:auto;padding-bottom:6px;
-  scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;
+.blog-acc-freccia{
+  background:rgba(255,255,255,.16);border:none;border-radius:50%;
+  width:34px;height:34px;flex-shrink:0;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
 }
-.blog-carousel .blog-card{min-width:85%;scroll-snap-align:start;}
-@media(min-width:900px){.blog-carousel .blog-card{min-width:340px;}}
+.blog-acc-freccia svg{width:18px;height:18px;stroke:#fff;transition:transform .3s ease;}
+.blog-acc-freccia.aperta svg{transform:rotate(180deg);}
+.blog-acc-corpo{max-height:0;overflow:hidden;opacity:0;margin-top:0;transition:max-height .35s ease, opacity .3s ease, margin-top .3s ease;}
+.blog-acc-corpo.aperta{max-height:400px;opacity:1;margin-top:16px;}
 .pagination{display:flex;align-items:center;justify-content:center;gap:36px;margin-top:34px;color:var(--blu-titoli);font-size:17px;}
 .pagination button{background:none;border:none;color:var(--blu-titoli);font-size:22px;cursor:pointer;}
 .chi p{font-size:19px;line-height:2;margin-bottom:30px;}
@@ -177,9 +180,12 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 .menu-overlay{
   position:fixed;inset:0;z-index:200;
   background:radial-gradient(circle at 50% 55%, #1c4f86 0%, #4d8cc4 55%, #8ab8de 100%);
-  display:none;flex-direction:column;
+  display:flex;flex-direction:column;
+  opacity:0;visibility:hidden;transform:translateY(-16px);
+  transition:opacity .28s ease, transform .28s ease, visibility .28s ease;
+  pointer-events:none;
 }
-.menu-overlay.open{display:flex;}
+.menu-overlay.open{opacity:1;visibility:visible;transform:translateY(0);pointer-events:auto;}
 .menu-top{display:flex;align-items:center;justify-content:space-between;padding:26px 30px;position:relative;}
 .menu-close{background:none;border:none;cursor:pointer;color:#fff;font-size:34px;font-weight:300;line-height:1;}
 .menu-links{padding:60px 40px;display:flex;flex-direction:column;gap:52px;flex:1;}
@@ -188,7 +194,6 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 .menu-account .avatar{width:44px;height:44px;border-radius:50%;background:#fff;color:#2a6bb0;display:flex;align-items:center;justify-content:center;font-weight:500;font-size:20px;}
 @media(min-width:900px){
   .products{grid-template-columns:repeat(4,1fr);}
-  .blog-grid{grid-template-columns:repeat(3,1fr);}
   .hero-title{font-size:60px;}
   .section{padding:60px 60px;}
   footer{padding:66px 60px 40px;}
@@ -236,7 +241,7 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 <div class="announce">
   <div class="announce-track announce-js">
     <span class="announce-item">
-      SEGUICI SU INSTAGRAM
+      SEGUIMI SU INSTAGRAM
       <svg class="announce-ghost" style="" viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg">
       <path fill="#ffffff" d="M50 3 C26 3 11 22 11 46 L11 93 C11 98 14 100 18 99 C23 98 26 95 31 96 C37 97 42 100 50 100 C58 100 63 97 69 96 C74 95 77 98 82 99 C86 100 89 98 89 93 L89 46 C89 22 74 3 50 3 Z"/>
       <ellipse cx="37" cy="41" rx="10.5" ry="15" fill="#2a8fd4"/>
@@ -309,17 +314,16 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 
 <section class="section">
   <div class="blog-title-riga">
-    <svg width="44" height="44" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <circle cx="19" cy="22" r="14" fill="#1d4e89"/>
-      <circle cx="26" cy="15" r="14" fill="#f0ede5"/>
-      <circle cx="36" cy="8" r="1.6" fill="#1d4e89"/>
-      <circle cx="6" cy="34" r="1.6" fill="#1d4e89"/>
+    <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path fill="#1d4e89" d="M20 2 C21 12 22 18 32 20 C22 22 21 28 20 38 C19 28 18 22 8 20 C18 18 19 12 20 2 Z"/>
+      <circle cx="33" cy="8" r="2" fill="#1d4e89"/>
+      <circle cx="7" cy="32" r="1.5" fill="#1d4e89"/>
     </svg>
-    <h2 class="blog-title">Diario per Dormiglioni</h2>
+    <h2 class="blog-title">Le ultime storie</h2>
   </div>
   <a href="spooky-blog.html" class="section-link">Visualizza tutto</a>
   <div style="height:30px"></div>
-  <div class="blog-carousel" id="home-diario">
+  <div class="blog-acc-lista" id="home-ultime">
     <div class="empty-note">Il racconto sta arrivando, qualche secondo di pazienza&hellip;</div>
   </div>
 </section>
@@ -335,23 +339,24 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
   </div>
   <a href="spooky-blog.html" class="section-link">Visualizza tutto</a>
   <div style="height:30px"></div>
-  <div class="blog-carousel" id="home-storie">
+  <div class="blog-acc-lista" id="home-storie">
     <div class="empty-note">Il racconto sta arrivando, qualche secondo di pazienza&hellip;</div>
   </div>
 </section>
 
 <section class="section">
   <div class="blog-title-riga">
-    <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path fill="#1d4e89" d="M20 2 C21 12 22 18 32 20 C22 22 21 28 20 38 C19 28 18 22 8 20 C18 18 19 12 20 2 Z"/>
-      <circle cx="33" cy="8" r="2" fill="#1d4e89"/>
-      <circle cx="7" cy="32" r="1.5" fill="#1d4e89"/>
+    <svg width="44" height="44" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="19" cy="22" r="14" fill="#1d4e89"/>
+      <circle cx="26" cy="15" r="14" fill="#f0ede5"/>
+      <circle cx="36" cy="8" r="1.6" fill="#1d4e89"/>
+      <circle cx="6" cy="34" r="1.6" fill="#1d4e89"/>
     </svg>
-    <h2 class="blog-title">Le ultime storie</h2>
+    <h2 class="blog-title">Diario per Dormiglioni</h2>
   </div>
   <a href="spooky-blog.html" class="section-link">Visualizza tutto</a>
   <div style="height:30px"></div>
-  <div class="blog-grid" id="home-ultime">
+  <div class="blog-acc-lista" id="home-diario">
     <div class="empty-note">Il racconto sta arrivando, qualche secondo di pazienza&hellip;</div>
   </div>
 </section>
@@ -359,17 +364,11 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 <script>
 const BACKEND_URL = "https://spooky-backend-trtr.onrender.com";
 const ATTESE_RITENTATIVO_HOME = [5000, 10000, 20000];
-const mesi = ["GENNAIO","FEBBRAIO","MARZO","APRILE","MAGGIO","GIUGNO","LUGLIO","AGOSTO","SETTEMBRE","OTTOBRE","NOVEMBRE","DICEMBRE"];
 
 const contDiario = document.getElementById("home-diario");
 const contStorie = document.getElementById("home-storie");
 const contUltime = document.getElementById("home-ultime");
 const MESSAGGIO_ATTESA = '<div class="empty-note">Il racconto sta arrivando, qualche secondo di pazienza&hellip;</div>';
-
-function formattaDataHome(dataISO) {
-  const d = new Date(dataISO);
-  return `${d.getDate()} ${mesi[d.getMonth()]} ${d.getFullYear()}`;
-}
 
 function estraiEstrattoHome(html, lunghezza = 150) {
   const testo = html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
@@ -382,13 +381,27 @@ function mostraCards(contenitore, posts, messaggioVuoto) {
     return;
   }
   contenitore.innerHTML = posts.map(post => `
-    <a class="blog-card" href="spooky-blog.html?post=${post._id}">
-      <h3>${post.titolo}</h3>
-      <div class="blog-date">${formattaDataHome(post.data).toUpperCase()}</div>
-      <p class="blog-excerpt">${estraiEstrattoHome(post.contenuto)}</p>
-      ${(post.paroleChiave || []).length ? `<div class="blog-tag-riga">${post.paroleChiave.map(p => `<span class="blog-tag">${p}</span>`).join("")}</div>` : ""}
-    </a>
+    <div class="blog-acc-item">
+      <div class="blog-acc-riga">
+        <a class="blog-acc-titolo" href="spooky-blog.html?post=${post._id}">${post.titolo}</a>
+        <button type="button" class="blog-acc-freccia aperta" aria-expanded="true" aria-label="Mostra o nascondi l'anteprima">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </div>
+      <div class="blog-acc-corpo aperta">
+        <p class="blog-excerpt">${estraiEstrattoHome(post.contenuto)}</p>
+      </div>
+    </div>
   `).join("");
+  contenitore.querySelectorAll(".blog-acc-freccia").forEach(function (freccia) {
+    freccia.addEventListener("click", function () {
+      const corpo = freccia.closest(".blog-acc-item").querySelector(".blog-acc-corpo");
+      const apri = !corpo.classList.contains("aperta");
+      corpo.classList.toggle("aperta", apri);
+      freccia.classList.toggle("aperta", apri);
+      freccia.setAttribute("aria-expanded", String(apri));
+    });
+  });
 }
 
 async function caricaHome(tentativo = 0) {
