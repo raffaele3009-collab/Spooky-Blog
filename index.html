@@ -130,6 +130,13 @@ header{
 .blog-acc-freccia.aperta svg{transform:rotate(180deg);}
 .blog-acc-corpo{max-height:0;overflow:hidden;opacity:0;margin-top:0;transition:max-height .35s ease, opacity .3s ease, margin-top .3s ease;}
 .blog-acc-corpo.aperta{max-height:400px;opacity:1;margin-top:16px;}
+.blog-acc-freccia.chiara{background:rgba(29,78,137,.1);}
+.blog-acc-freccia.chiara svg{stroke:var(--blu-titoli);}
+.chi-header{display:flex;align-items:center;justify-content:space-between;gap:16px;cursor:pointer;}
+.chi-header-left{display:flex;align-items:center;gap:22px;}
+.chi-corpo{display:grid;grid-template-rows:0fr;transition:grid-template-rows .35s ease;}
+.chi-corpo.aperta{grid-template-rows:1fr;margin-top:22px;}
+.chi-corpo-inner{overflow:hidden;min-height:0;}
 .pagination{display:flex;align-items:center;justify-content:center;gap:36px;margin-top:34px;color:var(--blu-titoli);font-size:17px;}
 .pagination button{background:none;border:none;color:var(--blu-titoli);font-size:22px;cursor:pointer;}
 .chi p{font-size:19px;line-height:2;margin-bottom:30px;}
@@ -375,6 +382,11 @@ function estraiEstrattoHome(html, lunghezza = 150) {
   return testo.length > lunghezza ? testo.slice(0, lunghezza) + "..." : testo;
 }
 
+// TODO (futuro): quando i racconti pubblicati saranno molti, questa lista
+// andrà sostituita con uno scorrimento verticale a blocchi (es. "carica
+// altri man mano che scorri" con IntersectionObserver, o paginazione),
+// mantenendo lo stesso formato a finestrella/tenda usato qui sotto. Per
+// ora, con pochi post, li mostriamo tutti insieme.
 function mostraCards(contenitore, posts, messaggioVuoto) {
   if (posts.length === 0) {
     contenitore.innerHTML = `<div class="empty-note">${messaggioVuoto}</div>`;
@@ -384,11 +396,11 @@ function mostraCards(contenitore, posts, messaggioVuoto) {
     <div class="blog-acc-item">
       <div class="blog-acc-riga">
         <a class="blog-acc-titolo" href="spooky-blog.html?post=${post._id}">${post.titolo}</a>
-        <button type="button" class="blog-acc-freccia aperta" aria-expanded="true" aria-label="Mostra o nascondi l'anteprima">
+        <button type="button" class="blog-acc-freccia" aria-expanded="false" aria-label="Mostra o nascondi l'anteprima">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
       </div>
-      <div class="blog-acc-corpo aperta">
+      <div class="blog-acc-corpo">
         <p class="blog-excerpt">${estraiEstrattoHome(post.contenuto)}</p>
       </div>
     </div>
@@ -455,17 +467,27 @@ caricaHome();
 </script>
 
 <section class="section chi">
-  <svg width="56" height="62" viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="margin-bottom:22px;">
-    <path fill="#1d4e89" d="M50 3 C26 3 11 22 11 46 L11 93 C11 98 14 100 18 99 C23 98 26 95 31 96 C37 97 42 100 50 100 C58 100 63 97 69 96 C74 95 77 98 82 99 C86 100 89 98 89 93 L89 46 C89 22 74 3 50 3 Z"/>
-    <ellipse cx="37" cy="41" rx="10.5" ry="15" fill="#f0ede5"/>
-    <ellipse cx="63" cy="41" rx="10.5" ry="15" fill="#f0ede5"/>
-  </svg>
-  <h2 class="page-title">Chi sono</h2>
-
-  <div id="chi-sono-contenuto">
-    <p>Caricamento...</p>
+  <div class="chi-header" id="chi-header">
+    <div class="chi-header-left">
+      <svg width="56" height="62" viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path fill="#1d4e89" d="M50 3 C26 3 11 22 11 46 L11 93 C11 98 14 100 18 99 C23 98 26 95 31 96 C37 97 42 100 50 100 C58 100 63 97 69 96 C74 95 77 98 82 99 C86 100 89 98 89 93 L89 46 C89 22 74 3 50 3 Z"/>
+        <ellipse cx="37" cy="41" rx="10.5" ry="15" fill="#f0ede5"/>
+        <ellipse cx="63" cy="41" rx="10.5" ry="15" fill="#f0ede5"/>
+      </svg>
+      <h2 class="page-title" style="margin-bottom:0;">Chi sono</h2>
+    </div>
+    <button type="button" class="blog-acc-freccia chiara" id="chi-freccia" aria-expanded="false" aria-label="Mostra o nascondi">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
   </div>
 
+  <div class="chi-corpo" id="chi-corpo">
+    <div class="chi-corpo-inner">
+      <div id="chi-sono-contenuto">
+        <p>Caricamento...</p>
+      </div>
+    </div>
+  </div>
 </section>
 
 <script>
@@ -481,6 +503,15 @@ caricaHome();
     console.error("Errore caricamento Chi sono:", errore);
   }
 })();
+
+document.getElementById("chi-header").addEventListener("click", function () {
+  const corpo = document.getElementById("chi-corpo");
+  const freccia = document.getElementById("chi-freccia");
+  const apri = !corpo.classList.contains("aperta");
+  corpo.classList.toggle("aperta", apri);
+  freccia.classList.toggle("aperta", apri);
+  freccia.setAttribute("aria-expanded", String(apri));
+});
 </script>
 
 

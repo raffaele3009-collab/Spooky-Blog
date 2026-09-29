@@ -383,6 +383,11 @@ document.getElementById("torna-al-blog").addEventListener("click", function(e) {
 
 const ATTESE_RITENTATIVO = [5000, 10000, 20000];
 
+// TODO (futuro): quando i racconti pubblicati saranno molti, questa lista
+// andrà sostituita con uno scorrimento verticale a blocchi (es. "carica
+// altri man mano che scorri" con IntersectionObserver, o paginazione),
+// mantenendo lo stesso formato a finestrella/tenda usato qui sotto. Per
+// ora, con pochi post, li mostriamo tutti insieme.
 function riempiGriglia(grid, posts, messaggioVuoto) {
   if (posts.length === 0) {
     grid.innerHTML = `<div class="empty-note">${messaggioVuoto}</div>`;
@@ -395,11 +400,11 @@ function riempiGriglia(grid, posts, messaggioVuoto) {
     item.innerHTML = `
       <div class="blog-acc-riga">
         <button type="button" class="blog-acc-titolo">${post.titolo}</button>
-        <button type="button" class="blog-acc-freccia aperta" aria-expanded="true" aria-label="Mostra o nascondi l'anteprima">
+        <button type="button" class="blog-acc-freccia" aria-expanded="false" aria-label="Mostra o nascondi l'anteprima">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
       </div>
-      <div class="blog-acc-corpo aperta">
+      <div class="blog-acc-corpo">
         <p class="blog-excerpt">${estraiEstratto(post.contenuto)}</p>
       </div>
     `;
