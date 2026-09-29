@@ -102,7 +102,9 @@ header{
   color:var(--blu-titoli);font-size:20px;
 }
 .qty button{background:none;border:none;color:var(--blu-titoli);font-size:22px;cursor:pointer;padding:0 6px;}
-.blog-title{color:var(--blu-scuro-titoli);font-size:40px;font-weight:500;margin-bottom:10px;}
+.blog-title{color:var(--blu-scuro-titoli);font-size:40px;font-weight:500;margin-bottom:0;}
+.blog-title-riga{display:flex;align-items:center;gap:16px;margin-bottom:10px;}
+.blog-title-riga svg{flex-shrink:0;}
 .blog-grid{display:grid;grid-template-columns:1fr;gap:22px;}
 .blog-card{
   background:radial-gradient(circle at 55% 45%, #1c4f86 0%, #4d8cc4 55%, #7db3de 100%);
@@ -246,7 +248,34 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 
 
 <section class="hero">
-  <img class="hero-bg" src="images/spooky-logo-hero.png" alt="Spooky">
+  <svg class="hero-bg" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <g fill="#f0ede5" opacity="0.8">
+      <circle cx="90" cy="60" r="3"/>
+      <circle cx="170" cy="110" r="2"/>
+      <circle cx="130" cy="210" r="2.5"/>
+      <circle cx="55" cy="170" r="2"/>
+      <circle cx="400" cy="40" r="2"/>
+      <circle cx="450" cy="95" r="2.5"/>
+      <circle cx="330" cy="70" r="2"/>
+    </g>
+    <circle cx="660" cy="95" r="42" fill="#f0ede5" opacity="0.95"/>
+    <circle cx="679" cy="80" r="42" fill="#149ab5"/>
+    <g opacity="0.5" transform="translate(555,300) scale(1.3)">
+      <path fill="#f0ede5" d="M50 3 C26 3 11 22 11 46 L11 93 C11 98 14 100 18 99 C23 98 26 95 31 96 C37 97 42 100 50 100 C58 100 63 97 69 96 C74 95 77 98 82 99 C86 100 89 98 89 93 L89 46 C89 22 74 3 50 3 Z"/>
+      <ellipse cx="37" cy="41" rx="10.5" ry="15" fill="#149ab5"/>
+      <ellipse cx="63" cy="41" rx="10.5" ry="15" fill="#149ab5"/>
+    </g>
+    <g opacity="0.75" transform="translate(90,290) scale(1.7)">
+      <path fill="#f0ede5" d="M50 3 C26 3 11 22 11 46 L11 93 C11 98 14 100 18 99 C23 98 26 95 31 96 C37 97 42 100 50 100 C58 100 63 97 69 96 C74 95 77 98 82 99 C86 100 89 98 89 93 L89 46 C89 22 74 3 50 3 Z"/>
+      <ellipse cx="37" cy="41" rx="10.5" ry="15" fill="#149ab5"/>
+      <ellipse cx="63" cy="41" rx="10.5" ry="15" fill="#149ab5"/>
+    </g>
+    <g opacity="0.9" transform="translate(300,320) scale(2.1)">
+      <path fill="#f0ede5" d="M50 3 C26 3 11 22 11 46 L11 93 C11 98 14 100 18 99 C23 98 26 95 31 96 C37 97 42 100 50 100 C58 100 63 97 69 96 C74 95 77 98 82 99 C86 100 89 98 89 93 L89 46 C89 22 74 3 50 3 Z"/>
+      <ellipse cx="37" cy="41" rx="10.5" ry="15" fill="#149ab5"/>
+      <ellipse cx="63" cy="41" rx="10.5" ry="15" fill="#149ab5"/>
+    </g>
+  </svg>
   <div class="hero-content">
     <div class="hero-eyebrow">Storie brevi per chi ha poco tempo e tanta immaginazione</div>
     <h1 class="hero-title">Stravaganti insieme</h1>
@@ -255,7 +284,15 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 </section>
 
 <section class="section">
-  <h2 class="blog-title">Diario per Dormiglioni</h2>
+  <div class="blog-title-riga">
+    <svg width="44" height="44" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="19" cy="22" r="14" fill="#1d4e89"/>
+      <circle cx="26" cy="15" r="14" fill="#f0ede5"/>
+      <circle cx="36" cy="8" r="1.6" fill="#1d4e89"/>
+      <circle cx="6" cy="34" r="1.6" fill="#1d4e89"/>
+    </svg>
+    <h2 class="blog-title">Diario per Dormiglioni</h2>
+  </div>
   <a href="spooky-blog.html" class="section-link">Visualizza tutto</a>
   <div style="height:30px"></div>
   <div class="blog-carousel" id="home-diario">
@@ -264,7 +301,14 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 </section>
 
 <section class="section">
-  <h2 class="blog-title">Racconti dal buio</h2>
+  <div class="blog-title-riga">
+    <svg width="40" height="44" viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path fill="#1d4e89" d="M50 3 C26 3 11 22 11 46 L11 93 C11 98 14 100 18 99 C23 98 26 95 31 96 C37 97 42 100 50 100 C58 100 63 97 69 96 C74 95 77 98 82 99 C86 100 89 98 89 93 L89 46 C89 22 74 3 50 3 Z"/>
+      <ellipse cx="37" cy="41" rx="10.5" ry="15" fill="#f0ede5"/>
+      <ellipse cx="63" cy="41" rx="10.5" ry="15" fill="#f0ede5"/>
+    </svg>
+    <h2 class="blog-title">Racconti dal buio</h2>
+  </div>
   <a href="spooky-blog.html" class="section-link">Visualizza tutto</a>
   <div style="height:30px"></div>
   <div class="blog-carousel" id="home-storie">
@@ -273,7 +317,14 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 </section>
 
 <section class="section">
-  <h2 class="blog-title">Le ultime storie</h2>
+  <div class="blog-title-riga">
+    <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path fill="#1d4e89" d="M20 2 C21 12 22 18 32 20 C22 22 21 28 20 38 C19 28 18 22 8 20 C18 18 19 12 20 2 Z"/>
+      <circle cx="33" cy="8" r="2" fill="#1d4e89"/>
+      <circle cx="7" cy="32" r="1.5" fill="#1d4e89"/>
+    </svg>
+    <h2 class="blog-title">Le ultime storie</h2>
+  </div>
   <a href="spooky-blog.html" class="section-link">Visualizza tutto</a>
   <div style="height:30px"></div>
   <div class="blog-grid" id="home-ultime">
@@ -381,6 +432,11 @@ caricaHome();
 </script>
 
 <section class="section chi">
+  <svg width="56" height="62" viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="margin-bottom:22px;">
+    <path fill="#1d4e89" d="M50 3 C26 3 11 22 11 46 L11 93 C11 98 14 100 18 99 C23 98 26 95 31 96 C37 97 42 100 50 100 C58 100 63 97 69 96 C74 95 77 98 82 99 C86 100 89 98 89 93 L89 46 C89 22 74 3 50 3 Z"/>
+    <ellipse cx="37" cy="41" rx="10.5" ry="15" fill="#f0ede5"/>
+    <ellipse cx="63" cy="41" rx="10.5" ry="15" fill="#f0ede5"/>
+  </svg>
   <h2 class="page-title">Chi sono</h2>
   
   <h3>Presentazioni</h3>

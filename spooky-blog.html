@@ -102,7 +102,9 @@ header{
   color:var(--blu-titoli);font-size:20px;
 }
 .qty button{background:none;border:none;color:var(--blu-titoli);font-size:22px;cursor:pointer;padding:0 6px;}
-.blog-title{color:var(--blu-scuro-titoli);font-size:40px;font-weight:500;margin-bottom:10px;}
+.blog-title{color:var(--blu-scuro-titoli);font-size:40px;font-weight:500;margin-bottom:0;}
+.blog-title-riga{display:flex;align-items:center;gap:16px;margin-bottom:10px;}
+.blog-title-riga svg{flex-shrink:0;}
 .blog-grid{display:grid;grid-template-columns:1fr;gap:22px;}
 .blog-card{
   background:radial-gradient(circle at 55% 45%, #1c4f86 0%, #4d8cc4 55%, #7db3de 100%);
@@ -267,7 +269,15 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 
 
 <section class="section" id="vista-lista">
-  <h2 class="blog-title">Diario per Dormiglioni</h2>
+  <div class="blog-title-riga">
+    <svg width="44" height="44" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="19" cy="22" r="14" fill="#1d4e89"/>
+      <circle cx="26" cy="15" r="14" fill="#f0ede5"/>
+      <circle cx="36" cy="8" r="1.6" fill="#1d4e89"/>
+      <circle cx="6" cy="34" r="1.6" fill="#1d4e89"/>
+    </svg>
+    <h2 class="blog-title">Diario per Dormiglioni</h2>
+  </div>
   <div style="height:30px"></div>
   <div class="blog-grid" id="blog-grid-diario">
     <div class="empty-note">Il racconto sta arrivando, qualche secondo di pazienza&hellip;</div>
@@ -275,7 +285,14 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 
   <div style="height:60px"></div>
 
-  <h2 class="blog-title">Racconti dal buio</h2>
+  <div class="blog-title-riga">
+    <svg width="40" height="44" viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path fill="#1d4e89" d="M50 3 C26 3 11 22 11 46 L11 93 C11 98 14 100 18 99 C23 98 26 95 31 96 C37 97 42 100 50 100 C58 100 63 97 69 96 C74 95 77 98 82 99 C86 100 89 98 89 93 L89 46 C89 22 74 3 50 3 Z"/>
+      <ellipse cx="37" cy="41" rx="10.5" ry="15" fill="#f0ede5"/>
+      <ellipse cx="63" cy="41" rx="10.5" ry="15" fill="#f0ede5"/>
+    </svg>
+    <h2 class="blog-title">Racconti dal buio</h2>
+  </div>
   <div style="height:30px"></div>
   <div class="blog-grid" id="blog-grid-storie">
     <div class="empty-note">Il racconto sta arrivando, qualche secondo di pazienza&hellip;</div>
