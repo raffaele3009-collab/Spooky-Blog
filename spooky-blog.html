@@ -229,7 +229,7 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
     <a href="chi-siamo.html">Chi Siamo</a>
     <a href="spooky-blog.html">Spooky Blog</a>
   </nav>
-  <div class="menu-account"><span class="avatar">R</span> Account</div>
+
 </div>
 
 <header>
@@ -249,7 +249,7 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 <div class="announce">
   <div class="announce-track announce-js">
     <span class="announce-item">
-      ASSISTENZA 24 ORE
+      SEGUICI SU INSTAGRAM
       <svg class="announce-ghost" style="" viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg">
       <path fill="#ffffff" d="M50 3 C26 3 11 22 11 46 L11 93 C11 98 14 100 18 99 C23 98 26 95 31 96 C37 97 42 100 50 100 C58 100 63 97 69 96 C74 95 77 98 82 99 C86 100 89 98 89 93 L89 46 C89 22 74 3 50 3 Z"/>
       <ellipse cx="37" cy="41" rx="10.5" ry="15" fill="#2a8fd4"/>
@@ -269,7 +269,15 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 <section class="section" id="vista-lista">
   <h2 class="blog-title">Diario per Dormiglioni</h2>
   <div style="height:30px"></div>
-  <div class="blog-grid" id="blog-grid">
+  <div class="blog-grid" id="blog-grid-diario">
+    <div class="empty-note">Il racconto sta arrivando, qualche secondo di pazienza&hellip;</div>
+  </div>
+
+  <div style="height:60px"></div>
+
+  <h2 class="blog-title">Racconti dal buio</h2>
+  <div style="height:30px"></div>
+  <div class="blog-grid" id="blog-grid-storie">
     <div class="empty-note">Il racconto sta arrivando, qualche secondo di pazienza&hellip;</div>
   </div>
 </section>
@@ -344,12 +352,34 @@ document.getElementById("torna-al-blog").addEventListener("click", function(e) {
 
 const ATTESE_RITENTATIVO = [5000, 10000, 20000];
 
-async function caricaPost(tentativo = 0) {
-  const grid = document.getElementById("blog-grid");
+function riempiGriglia(grid, posts, messaggioVuoto) {
+  if (posts.length === 0) {
+    grid.innerHTML = `<div class="empty-note">${messaggioVuoto}</div>`;
+    return;
+  }
+  grid.innerHTML = "";
+  posts.forEach(post => {
+    const card = document.createElement("button");
+    card.className = "blog-card";
+    card.innerHTML = `
+      <h3>${post.titolo}</h3>
+      <div class="blog-date">${formattaData(post.data).toUpperCase()}</div>
+      <p class="blog-excerpt">${estraiEstratto(post.contenuto)}</p>
+    `;
+    card.addEventListener("click", () => mostraArticolo(post._id));
+    grid.appendChild(card);
+  });
+}
 
-  grid.innerHTML = '<div class="empty-note">Il racconto sta arrivando, qualche secondo di pazienza&hellip;</div>';
+async function caricaPost(tentativo = 0) {
+  const gridDiario = document.getElementById("blog-grid-diario");
+  const gridStorie = document.getElementById("blog-grid-storie");
+  const messaggioAttesa = '<div class="empty-note">Il racconto sta arrivando, qualche secondo di pazienza&hellip;</div>';
+
+  gridDiario.innerHTML = messaggioAttesa;
+  gridStorie.innerHTML = messaggioAttesa;
   const timerSveglia = setTimeout(() => {
-    grid.innerHTML += '<div class="empty-note" style="margin-top:14px">Il server si sta svegliando, di solito serve meno di un minuto.</div>';
+    gridDiario.innerHTML += '<div class="empty-note" style="margin-top:14px">Il server si sta svegliando, di solito serve meno di un minuto.</div>';
   }, 8000);
 
   try {
@@ -360,22 +390,16 @@ async function caricaPost(tentativo = 0) {
     tuttiIPost = posts;
 
     if (posts.length === 0) {
-      grid.innerHTML = '<div class="empty-note">Nessun post ancora pubblicato. Torna presto per nuovi contenuti!</div>';
+      gridDiario.innerHTML = '<div class="empty-note">Nessun post ancora pubblicato. Torna presto per nuovi contenuti!</div>';
+      gridStorie.innerHTML = "";
       return;
     }
 
-    grid.innerHTML = "";
-    posts.forEach(post => {
-      const card = document.createElement("button");
-      card.className = "blog-card";
-      card.innerHTML = `
-        <h3>${post.titolo}</h3>
-        <div class="blog-date">${formattaData(post.data).toUpperCase()}</div>
-        <p class="blog-excerpt">${estraiEstratto(post.contenuto)}</p>
-      `;
-      card.addEventListener("click", () => mostraArticolo(post._id));
-      grid.appendChild(card);
-    });
+    const postiDiario = posts.filter(p => (p.categoria || "diario") === "diario");
+    const postiStorie = posts.filter(p => p.categoria === "storie");
+
+    riempiGriglia(gridDiario, postiDiario, "Nessun post ancora pubblicato qui. Torna presto!");
+    riempiGriglia(gridStorie, postiStorie, "Nessun racconto ancora pubblicato qui. Torna presto!");
 
     // Se l'URL contiene ?post=ID, apri direttamente quell'articolo
     const parametri = new URLSearchParams(window.location.search);
@@ -387,15 +411,18 @@ async function caricaPost(tentativo = 0) {
     console.error("Errore nel caricamento dei post:", errore);
 
     if (tentativo < ATTESE_RITENTATIVO.length) {
-      grid.innerHTML = '<div class="empty-note">Il server si sta svegliando, ritento tra qualche secondo&hellip;</div>';
+      const messaggioRitento = '<div class="empty-note">Il server si sta svegliando, ritento tra qualche secondo&hellip;</div>';
+      gridDiario.innerHTML = messaggioRitento;
+      gridStorie.innerHTML = messaggioRitento;
       setTimeout(() => caricaPost(tentativo + 1), ATTESE_RITENTATIVO[tentativo]);
     } else {
-      grid.innerHTML = `
+      gridDiario.innerHTML = `
         <div class="empty-note">
           Non riesco a caricare i racconti al momento.
           <div style="height:16px"></div>
           <button class="hero-btn" style="width:auto;" id="btn-riprova-blog">Riprova</button>
         </div>`;
+      gridStorie.innerHTML = "";
       document.getElementById("btn-riprova-blog").addEventListener("click", () => caricaPost(0));
     }
   }
@@ -404,12 +431,6 @@ async function caricaPost(tentativo = 0) {
 caricaPost();
 </script>
 
-
-<section class="newsletter">
-  <h2>Iscriviti alla newsletter</h2>
-  <p>Un racconto nuovo ogni settimana,<br>direttamente nella tua email.</p>
-  <a href="https://www.instagram.com/_spookymanager_/" target="_blank" rel="noopener" class="hero-btn" style="width:auto;">Seguimi su Instagram per non perdere le storie</a>
-</section>
 
 
 <footer>
@@ -420,10 +441,6 @@ caricaPost();
     <div class="foot-col"><h3>Facebook</h3><a href="https://www.facebook.com/profile.php?id=61589471631251" target="_blank" rel="noopener">Spookymanager</a></div>
   </div>
   <div class="foot-social"><svg viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12c0 5 3.7 9.1 8.4 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7C18.3 21.1 22 17 22 12c0-5.5-4.5-10-10-10z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2-.1-1.3-.1-1.7-.1-4.9s0-3.6.1-4.9c.1-1.2.2-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4 1.3-.1 1.7-.1 4.9-.1zm0 1.8c-3.1 0-3.5 0-4.8.1-1.1.1-1.5.2-1.8.3-.5.2-.8.4-1.1.7-.3.3-.5.6-.7 1.1-.1.3-.3.7-.3 1.8-.1 1.3-.1 1.6-.1 4.8s0 3.5.1 4.8c.1 1.1.2 1.5.3 1.8.2.5.4.8.7 1.1.3.3.6.5 1.1.7.3.1.7.3 1.8.3 1.3.1 1.6.1 4.8.1s3.5 0 4.8-.1c1.1-.1 1.5-.2 1.8-.3.5-.2.8-.4 1.1-.7.3-.3.5-.6.7-1.1.1-.3.3-.7.3-1.8.1-1.3.1-1.6.1-4.8s0-3.5-.1-4.8c-.1-1.1-.2-1.5-.3-1.8-.2-.5-.4-.8-.7-1.1-.3-.3-.6-.5-1.1-.7-.3-.1-.7-.3-1.8-.3-1.3-.1-1.6-.1-4.8-.1zm0 3.1a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 1.8a3.2 3.2 0 1 0 0 6.4 3.2 3.2 0 0 0 0-6.4zm5.2-2.2a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4z"/></svg></div>
-  <button class="shop-btn">
-    <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9.5-9C.8 8.5 2.5 5 6 5c2 0 3.4 1 4 2 .6-1 2-2 4-2 3.5 0 5.2 3.5 3.5 7-2.5 4.5-9.5 9-9.5 9z"/></svg>
-    Segui su <strong style="font-weight:600">shop</strong>
-  </button>
   <div class="foot-social-center"><svg fill="#fff" viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12c0 5 3.7 9.1 8.4 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7C18.3 21.1 22 17 22 12c0-5.5-4.5-10-10-10z"/></svg><svg fill="#fff" viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2-.1-1.3-.1-1.7-.1-4.9s0-3.6.1-4.9c.1-1.2.2-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4 1.3-.1 1.7-.1 4.9-.1zm0 1.8c-3.1 0-3.5 0-4.8.1-1.1.1-1.5.2-1.8.3-.5.2-.8.4-1.1.7-.3.3-.5.6-.7 1.1-.1.3-.3.7-.3 1.8-.1 1.3-.1 1.6-.1 4.8s0 3.5.1 4.8c.1 1.1.2 1.5.3 1.8.2.5.4.8.7 1.1.3.3.6.5 1.1.7.3.1.7.3 1.8.3 1.3.1 1.6.1 4.8.1s3.5 0 4.8-.1c1.1-.1 1.5-.2 1.8-.3.5-.2.8-.4 1.1-.7.3-.3.5-.6.7-1.1.1-.3.3-.7.3-1.8.1-1.3.1-1.6.1-4.8s0-3.5-.1-4.8c-.1-1.1-.2-1.5-.3-1.8-.2-.5-.4-.8-.7-1.1-.3-.3-.6-.5-1.1-.7-.3-.1-.7-.3-1.8-.3-1.3-.1-1.6-.1-4.8-.1zm0 3.1a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 1.8a3.2 3.2 0 1 0 0 6.4 3.2 3.2 0 0 0 0-6.4zm5.2-2.2a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4z"/></svg></div>
   <div class="foot-divider"></div>
   <div class="foot-legal">
