@@ -368,6 +368,21 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
   </div>
 </section>
 
+<section class="section">
+  <div class="blog-title-riga">
+    <svg width="44" height="40" viewBox="0 0 44 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path fill="#1d4e89" d="M22 6C18 3 11 2 4 3v28c7-1 14 0 18 3V6z"/>
+      <path fill="#1d4e89" opacity="0.55" d="M22 6c4-3 11-4 18-3v28c-7-1-14 0-18 3V6z"/>
+    </svg>
+    <h2 class="blog-title">Poesie</h2>
+  </div>
+  <a href="spooky-blog.html" class="section-link">Visualizza tutto</a>
+  <div style="height:30px"></div>
+  <div class="blog-acc-lista" id="home-poesie">
+    <div class="empty-note">Il racconto sta arrivando, qualche secondo di pazienza&hellip;</div>
+  </div>
+</section>
+
 <script>
 const BACKEND_URL = "https://spooky-backend-trtr.onrender.com";
 const ATTESE_RITENTATIVO_HOME = [5000, 10000, 20000];
@@ -375,6 +390,7 @@ const ATTESE_RITENTATIVO_HOME = [5000, 10000, 20000];
 const contDiario = document.getElementById("home-diario");
 const contStorie = document.getElementById("home-storie");
 const contUltime = document.getElementById("home-ultime");
+const contPoesie = document.getElementById("home-poesie");
 const MESSAGGIO_ATTESA = '<div class="empty-note">Il racconto sta arrivando, qualche secondo di pazienza&hellip;</div>';
 
 function estraiEstrattoHome(html, lunghezza = 150) {
@@ -420,6 +436,7 @@ async function caricaHome(tentativo = 0) {
   contDiario.innerHTML = MESSAGGIO_ATTESA;
   contStorie.innerHTML = MESSAGGIO_ATTESA;
   contUltime.innerHTML = MESSAGGIO_ATTESA;
+  contPoesie.innerHTML = MESSAGGIO_ATTESA;
 
   const timerSveglia = setTimeout(() => {
     contDiario.innerHTML += '<div class="empty-note" style="margin-top:14px">Il server si sta svegliando, di solito serve meno di un minuto.</div>';
@@ -433,10 +450,12 @@ async function caricaHome(tentativo = 0) {
 
     const postiDiario = posts.filter(p => (p.categoria || "diario") === "diario");
     const postiStorie = posts.filter(p => p.categoria === "storie");
+    const postiPoesie = posts.filter(p => p.categoria === "poesie");
 
     mostraCards(contDiario, postiDiario, "Presto nuovi contenuti sul blog!");
     mostraCards(contStorie, postiStorie, "Presto nuove storie qui!");
     mostraCards(contUltime, posts.slice(0, 3), "Presto nuovi contenuti sul blog!");
+    mostraCards(contPoesie, postiPoesie, "Presto nuove poesie qui!");
 
   } catch (errore) {
     clearTimeout(timerSveglia);
@@ -447,6 +466,7 @@ async function caricaHome(tentativo = 0) {
       contDiario.innerHTML = messaggioRitento;
       contStorie.innerHTML = messaggioRitento;
       contUltime.innerHTML = messaggioRitento;
+      contPoesie.innerHTML = messaggioRitento;
       setTimeout(() => caricaHome(tentativo + 1), ATTESE_RITENTATIVO_HOME[tentativo]);
     } else {
       const messaggioErrore = `
@@ -458,6 +478,7 @@ async function caricaHome(tentativo = 0) {
       contDiario.innerHTML = messaggioErrore;
       contStorie.innerHTML = "";
       contUltime.innerHTML = "";
+      contPoesie.innerHTML = "";
       document.getElementById("btn-riprova-home").addEventListener("click", () => caricaHome(0));
     }
   }
