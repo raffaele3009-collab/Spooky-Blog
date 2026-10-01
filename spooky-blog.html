@@ -185,14 +185,16 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 .foot-legal{text-align:center;color:#e2ecfa;font-size:16px;line-height:2.4;letter-spacing:.06em;}
 .foot-legal a{color:#e2ecfa;text-decoration:none;}
 .menu-overlay{
-  position:fixed;inset:0;z-index:200;
-  background:radial-gradient(circle at 50% 55%, #1c4f86 0%, #4d8cc4 55%, #8ab8de 100%);
+  position:fixed;top:0;left:0;bottom:0;z-index:200;
+  width:290px;max-width:80vw;
+  background:linear-gradient(165deg, #1c4f86 0%, #4d8cc4 65%, #8ab8de 100%);
+  box-shadow:10px 0 34px rgba(18,42,80,.35);
   display:flex;flex-direction:column;
-  opacity:0;visibility:hidden;transform:translateY(-16px);
+  opacity:0;visibility:hidden;transform:translateX(-100%);
   transition:opacity .28s ease, transform .28s ease, visibility .28s ease;
   pointer-events:none;
 }
-.menu-overlay.open{opacity:1;visibility:visible;transform:translateY(0);pointer-events:auto;}
+.menu-overlay.open{opacity:1;visibility:visible;transform:translateX(0);pointer-events:auto;}
 .menu-top{display:flex;align-items:center;justify-content:space-between;padding:26px 30px;position:relative;}
 .menu-close{background:none;border:none;cursor:pointer;color:#fff;font-size:34px;font-weight:300;line-height:1;}
 .menu-links{padding:60px 40px;display:flex;flex-direction:column;gap:52px;flex:1;}
