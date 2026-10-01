@@ -62,10 +62,11 @@ header{
   position:relative;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   text-align:center;
-  min-height:520px;
+  height:520px;
   overflow:hidden;
+  transition:height .15s ease-out;
 }
-@media(max-width:640px){.hero{min-height:440px;}}
+@media(max-width:640px){.hero{height:440px;}}
 .hero-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center;}
 .hero-content{position:relative;z-index:2;padding:0 20px;}
 .hero-eyebrow{color:#e8eef4;font-size:14px;letter-spacing:.28em;text-transform:uppercase;margin-bottom:16px;font-weight:400;}
@@ -318,6 +319,45 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
     <h1 class="hero-title">Stravaganti insieme</h1>
   </div>
 </section>
+
+<script>
+// Il banner hero si rimpicciolisce man mano che si scorre la pagina,
+// fino a raggiungere un'altezza minima, poi resta fisso a quella misura.
+(function () {
+  const hero = document.querySelector(".hero");
+  if (!hero) return;
+
+  const ALTEZZA_MAX_DESKTOP = 520;
+  const ALTEZZA_MAX_MOBILE = 440;
+  const ALTEZZA_MIN_DESKTOP = 260;
+  const ALTEZZA_MIN_MOBILE = 220;
+  const DISTANZA_SCROLL = 350; // px di scroll per completare il rimpicciolimento
+
+  let aggiornamentoInCorso = false;
+
+  function aggiorna() {
+    const mobile = window.matchMedia("(max-width:640px)").matches;
+    const altezzaMax = mobile ? ALTEZZA_MAX_MOBILE : ALTEZZA_MAX_DESKTOP;
+    const altezzaMin = mobile ? ALTEZZA_MIN_MOBILE : ALTEZZA_MIN_DESKTOP;
+
+    const scorrimento = Math.min(window.scrollY, DISTANZA_SCROLL);
+    const frazione = scorrimento / DISTANZA_SCROLL;
+    const altezza = altezzaMax - (altezzaMax - altezzaMin) * frazione;
+
+    hero.style.height = altezza + "px";
+    aggiornamentoInCorso = false;
+  }
+
+  window.addEventListener("scroll", function () {
+    if (!aggiornamentoInCorso) {
+      requestAnimationFrame(aggiorna);
+      aggiornamentoInCorso = true;
+    }
+  }, { passive: true });
+
+  aggiorna();
+})();
+</script>
 
 <section class="section">
   <div class="blog-title-riga">
