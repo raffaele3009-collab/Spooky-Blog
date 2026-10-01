@@ -200,6 +200,8 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
   pointer-events:none;
 }
 .menu-overlay.open{opacity:1;visibility:visible;transform:translateX(0);pointer-events:auto;}
+.menu-backdrop{position:fixed;inset:0;z-index:199;display:none;}
+.menu-backdrop.open{display:block;}
 .menu-top{display:flex;align-items:center;justify-content:space-between;padding:26px 30px;position:relative;}
 .menu-close{background:none;border:none;cursor:pointer;color:#fff;font-size:34px;font-weight:300;line-height:1;}
 .menu-links{padding:60px 40px;display:flex;flex-direction:column;gap:52px;flex:1;}
@@ -215,6 +217,7 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
   .blog-sezioni{grid-template-columns:1fr 1fr;gap:50px 40px;}
   .hamburger{display:none;}
   .menu-overlay{display:none;}
+  .menu-backdrop{display:none;}
   .logo-link{position:static;transform:none;}
   .logo-nav-gruppo{gap:38px;}
   .nav-desktop{display:flex;align-items:center;gap:30px;}
@@ -225,9 +228,24 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 </head>
 <body>
 
+<script>
+function apriMenuMobile() {
+  document.getElementById('menu').classList.add('open');
+  document.getElementById('menu-backdrop').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function chiudiMenuMobile() {
+  document.getElementById('menu').classList.remove('open');
+  document.getElementById('menu-backdrop').classList.remove('open');
+  document.body.style.overflow = '';
+}
+</script>
+
+<div class="menu-backdrop" id="menu-backdrop" onclick="chiudiMenuMobile()"></div>
+
 <div class="menu-overlay" id="menu">
   <div class="menu-top">
-    <button class="menu-close" onclick="document.getElementById('menu').classList.remove('open');document.body.style.overflow='';">&#10005;</button>
+    <button class="menu-close" onclick="chiudiMenuMobile()">&#10005;</button>
     <a class="logo-link" href="index.html"><svg class="logo-ghost" style="" viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg">
       <path fill="#1a1a1a" d="M50 3 C26 3 11 22 11 46 L11 93 C11 98 14 100 18 99 C23 98 26 95 31 96 C37 97 42 100 50 100 C58 100 63 97 69 96 C74 95 77 98 82 99 C86 100 89 98 89 93 L89 46 C89 22 74 3 50 3 Z"/>
       <ellipse cx="37" cy="41" rx="10.5" ry="15" fill="#f0ede5"/>
@@ -247,7 +265,7 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 </div>
 
 <header>
-  <button class="hamburger" onclick="document.getElementById('menu').classList.add('open');document.body.style.overflow='hidden';">
+  <button class="hamburger" onclick="apriMenuMobile()">
     <span></span><span></span><span></span>
   </button>
   <div class="logo-nav-gruppo">
