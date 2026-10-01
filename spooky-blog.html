@@ -106,7 +106,8 @@ header{
 .blog-title-riga{display:flex;align-items:center;gap:16px;margin-bottom:10px;}
 .blog-title-riga svg{flex-shrink:0;}
 .blog-excerpt{font-size:16px;line-height:1.75;color:#dce8f2;}
-.blog-acc-lista{display:grid;grid-template-columns:1fr;gap:14px;align-items:start;}
+.blog-sezioni{display:grid;grid-template-columns:1fr;gap:50px;}
+.blog-acc-lista{display:flex;flex-direction:column;gap:14px;}
 .blog-acc-item{
   background:radial-gradient(circle at 55% 45%, #1c4f86 0%, #4d8cc4 55%, #7db3de 100%);
   border-radius:14px;color:#fff;padding:20px 22px;
@@ -228,7 +229,7 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
   footer{padding:66px 60px 40px;}
   .foot-cols-wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:30px;}
   .barra-ricerca{padding:24px 60px 0;}
-  .blog-acc-lista{grid-template-columns:1fr 1fr;gap:18px 22px;}
+  .blog-sezioni{grid-template-columns:1fr 1fr;gap:50px 40px;}
 }
 </style>
 </head>
@@ -293,47 +294,51 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 </div>
 
 <section class="section" id="vista-lista">
-  <div class="blog-title-riga">
-    <svg width="44" height="44" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <circle cx="19" cy="22" r="14" fill="#1d4e89"/>
-      <circle cx="26" cy="15" r="14" fill="#f0ede5"/>
-      <circle cx="36" cy="8" r="1.6" fill="#1d4e89"/>
-      <circle cx="6" cy="34" r="1.6" fill="#1d4e89"/>
-    </svg>
-    <h2 class="blog-title">Diario per Dormiglioni</h2>
-  </div>
-  <div style="height:30px"></div>
-  <div class="blog-acc-lista" id="blog-grid-diario">
-    <div class="empty-note">Il racconto sta arrivando, qualche secondo di pazienza&hellip;</div>
-  </div>
+  <div class="blog-sezioni">
+    <div class="blog-sezione">
+      <div class="blog-title-riga">
+        <svg width="44" height="44" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="19" cy="22" r="14" fill="#1d4e89"/>
+          <circle cx="26" cy="15" r="14" fill="#f0ede5"/>
+          <circle cx="36" cy="8" r="1.6" fill="#1d4e89"/>
+          <circle cx="6" cy="34" r="1.6" fill="#1d4e89"/>
+        </svg>
+        <h2 class="blog-title">Diario per Dormiglioni</h2>
+      </div>
+      <div style="height:30px"></div>
+      <div class="blog-acc-lista" id="blog-grid-diario">
+        <div class="empty-note">Il racconto sta arrivando, qualche secondo di pazienza&hellip;</div>
+      </div>
+    </div>
 
-  <div style="height:60px"></div>
+    <div class="blog-sezione">
+      <div class="blog-title-riga">
+        <svg width="40" height="44" viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path fill="#1d4e89" d="M50 3 C26 3 11 22 11 46 L11 93 C11 98 14 100 18 99 C23 98 26 95 31 96 C37 97 42 100 50 100 C58 100 63 97 69 96 C74 95 77 98 82 99 C86 100 89 98 89 93 L89 46 C89 22 74 3 50 3 Z"/>
+          <ellipse cx="37" cy="41" rx="10.5" ry="15" fill="#f0ede5"/>
+          <ellipse cx="63" cy="41" rx="10.5" ry="15" fill="#f0ede5"/>
+        </svg>
+        <h2 class="blog-title">Racconti dal buio</h2>
+      </div>
+      <div style="height:30px"></div>
+      <div class="blog-acc-lista" id="blog-grid-storie">
+        <div class="empty-note">Il racconto sta arrivando, qualche secondo di pazienza&hellip;</div>
+      </div>
+    </div>
 
-  <div class="blog-title-riga">
-    <svg width="40" height="44" viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path fill="#1d4e89" d="M50 3 C26 3 11 22 11 46 L11 93 C11 98 14 100 18 99 C23 98 26 95 31 96 C37 97 42 100 50 100 C58 100 63 97 69 96 C74 95 77 98 82 99 C86 100 89 98 89 93 L89 46 C89 22 74 3 50 3 Z"/>
-      <ellipse cx="37" cy="41" rx="10.5" ry="15" fill="#f0ede5"/>
-      <ellipse cx="63" cy="41" rx="10.5" ry="15" fill="#f0ede5"/>
-    </svg>
-    <h2 class="blog-title">Racconti dal buio</h2>
-  </div>
-  <div style="height:30px"></div>
-  <div class="blog-acc-lista" id="blog-grid-storie">
-    <div class="empty-note">Il racconto sta arrivando, qualche secondo di pazienza&hellip;</div>
-  </div>
-
-  <div style="height:60px"></div>
-
-  <div class="blog-title-riga">
-    <svg width="44" height="40" viewBox="0 0 44 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path fill="#1d4e89" d="M22 6C18 3 11 2 4 3v28c7-1 14 0 18 3V6z"/>
-      <path fill="#1d4e89" opacity="0.55" d="M22 6c4-3 11-4 18-3v28c-7-1-14 0-18 3V6z"/>
-    </svg>
-    <h2 class="blog-title">Poesie</h2>
-  </div>
-  <div style="height:30px"></div>
-  <div class="blog-acc-lista" id="blog-grid-poesie">
-    <div class="empty-note">Il racconto sta arrivando, qualche secondo di pazienza&hellip;</div>
+    <div class="blog-sezione">
+      <div class="blog-title-riga">
+        <svg width="44" height="40" viewBox="0 0 44 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path fill="#1d4e89" d="M22 6C18 3 11 2 4 3v28c7-1 14 0 18 3V6z"/>
+          <path fill="#1d4e89" opacity="0.55" d="M22 6c4-3 11-4 18-3v28c-7-1-14 0-18 3V6z"/>
+        </svg>
+        <h2 class="blog-title">Poesie</h2>
+      </div>
+      <div style="height:30px"></div>
+      <div class="blog-acc-lista" id="blog-grid-poesie">
+        <div class="empty-note">Il racconto sta arrivando, qualche secondo di pazienza&hellip;</div>
+      </div>
+    </div>
   </div>
 </section>
 
