@@ -44,8 +44,10 @@ header{
 }
 .hamburger{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;gap:7px;padding:4px;}
 .hamburger span{display:block;width:26px;height:1.6px;background:#fff;}
+.logo-nav-gruppo{display:flex;align-items:center;}
 .logo-link{position:absolute;left:50%;transform:translateX(-50%);}
 .logo-ghost{height:52px;display:block;}
+.nav-desktop{display:none;}
 .header-icons{display:flex;align-items:center;gap:26px;}
 .header-icons svg{width:26px;height:26px;stroke:#fff;fill:none;stroke-width:1.4;cursor:pointer;}
 .announce{
@@ -232,6 +234,13 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
   .foot-cols-wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:30px;}
   .barra-ricerca{padding:24px 60px 0;}
   .blog-sezioni{grid-template-columns:1fr 1fr;gap:50px 40px;}
+  .hamburger{display:none;}
+  .menu-overlay{display:none;}
+  .logo-link{position:static;transform:none;}
+  .logo-nav-gruppo{gap:38px;}
+  .nav-desktop{display:flex;align-items:center;gap:30px;}
+  .nav-desktop a{color:#fff;font-size:16px;text-decoration:none;letter-spacing:.03em;font-weight:400;}
+  .nav-desktop a:hover{text-decoration:underline;text-underline-offset:4px;}
 }
 </style>
 </head>
@@ -239,7 +248,7 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 
 <div class="menu-overlay" id="menu">
   <div class="menu-top">
-    <button class="menu-close" onclick="document.getElementById('menu').classList.remove('open')">&#10005;</button>
+    <button class="menu-close" onclick="document.getElementById('menu').classList.remove('open');document.body.style.overflow='';">&#10005;</button>
     <a class="logo-link" href="index.html"><svg class="logo-ghost" style="" viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg">
       <path fill="#1a1a1a" d="M50 3 C26 3 11 22 11 46 L11 93 C11 98 14 100 18 99 C23 98 26 95 31 96 C37 97 42 100 50 100 C58 100 63 97 69 96 C74 95 77 98 82 99 C86 100 89 98 89 93 L89 46 C89 22 74 3 50 3 Z"/>
       <ellipse cx="37" cy="41" rx="10.5" ry="15" fill="#f0ede5"/>
@@ -259,14 +268,22 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 </div>
 
 <header>
-  <button class="hamburger" onclick="document.getElementById('menu').classList.add('open')">
+  <button class="hamburger" onclick="document.getElementById('menu').classList.add('open');document.body.style.overflow='hidden';">
     <span></span><span></span><span></span>
   </button>
-  <a class="logo-link" href="index.html"><svg class="logo-ghost" style="" viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg">
+  <div class="logo-nav-gruppo">
+    <a class="logo-link" href="index.html"><svg class="logo-ghost" style="" viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg">
       <path fill="#1a1a1a" d="M50 3 C26 3 11 22 11 46 L11 93 C11 98 14 100 18 99 C23 98 26 95 31 96 C37 97 42 100 50 100 C58 100 63 97 69 96 C74 95 77 98 82 99 C86 100 89 98 89 93 L89 46 C89 22 74 3 50 3 Z"/>
       <ellipse cx="37" cy="41" rx="10.5" ry="15" fill="#f0ede5"/>
       <ellipse cx="63" cy="41" rx="10.5" ry="15" fill="#f0ede5"/>
     </svg></a>
+    <nav class="nav-desktop">
+      <a href="index.html">Home</a>
+      <a href="contattaci.html">Contattaci</a>
+      <a href="chi-siamo.html">Chi Siamo</a>
+      <a href="spooky-blog.html">Spooky Blog</a>
+    </nav>
+  </div>
   <div class="header-icons">
     <button id="btn-cerca-header" aria-label="Cerca" style="background:none;border:none;padding:0;cursor:pointer;"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg></button>
   </div>
