@@ -41,11 +41,12 @@ header{
   background:linear-gradient(120deg,var(--header-grad1) 0%,var(--header-grad2) 55%,var(--header-grad1) 100%);
   display:flex;align-items:center;justify-content:space-between;
   padding:26px 30px;
+  transition:padding .15s ease-out;
 }
 .hamburger{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;gap:7px;padding:4px;}
 .hamburger span{display:block;width:26px;height:1.6px;background:#fff;}
 .logo-link{position:absolute;left:50%;transform:translateX(-50%);}
-.logo-ghost{height:52px;display:block;}
+.logo-ghost{height:52px;display:block;transition:height .15s ease-out;}
 .header-icons{display:flex;align-items:center;gap:26px;}
 .header-icons svg{width:26px;height:26px;stroke:#fff;fill:none;stroke-width:1.4;cursor:pointer;}
 .announce{
@@ -60,15 +61,15 @@ header{
 .hero{
   background:var(--hero-teal);
   position:relative;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
   text-align:center;
-  height:520px;
+  height:400px;
   overflow:hidden;
   transition:height .15s ease-out;
 }
-@media(max-width:640px){.hero{height:440px;}}
+@media(max-width:640px){.hero{height:340px;}}
 .hero-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center;}
-.hero-content{position:relative;z-index:2;padding:0 20px;}
+.hero-content{position:relative;z-index:2;padding:46px 20px 0;}
 .hero-eyebrow{color:#e8eef4;font-size:14px;letter-spacing:.28em;text-transform:uppercase;margin-bottom:16px;font-weight:400;}
 .hero-title{color:#fff;font-size:44px;font-weight:500;margin-bottom:34px;letter-spacing:.01em;}
 .hero-btn{
@@ -267,27 +268,20 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 
 
 <section class="hero">
-  <svg class="hero-bg" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <svg class="hero-bg" viewBox="0 110 800 390" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <g fill="#f0ede5" opacity="0.8">
-      <circle cx="40" cy="50" r="2.5"/>
       <circle cx="90" cy="130" r="2"/>
       <circle cx="30" cy="220" r="2.5"/>
       <circle cx="60" cy="330" r="2"/>
       <circle cx="25" cy="430" r="2.5"/>
-      <circle cx="150" cy="60" r="2"/>
       <circle cx="200" cy="440" r="2"/>
-      <circle cx="270" cy="70" r="2.5"/>
-      <circle cx="620" cy="60" r="2"/>
       <circle cx="700" cy="130" r="2.5"/>
-      <circle cx="760" cy="60" r="2"/>
       <circle cx="775" cy="220" r="2.5"/>
       <circle cx="740" cy="330" r="2"/>
       <circle cx="770" cy="430" r="2.5"/>
       <circle cx="650" cy="440" r="2"/>
       <circle cx="600" cy="420" r="2.5"/>
     </g>
-    <circle cx="560" cy="70" r="40" fill="#f0ede5" opacity="0.95"/>
-    <circle cx="576" cy="57" r="40" fill="#149ab5"/>
     <g opacity="0.35" transform="translate(30,320) scale(0.75)">
       <path fill="#f0ede5" d="M50 3 C26 3 11 22 11 46 L11 93 C11 98 14 100 18 99 C23 98 26 95 31 96 C37 97 42 100 50 100 C58 100 63 97 69 96 C74 95 77 98 82 99 C86 100 89 98 89 93 L89 46 C89 22 74 3 50 3 Z"/>
       <ellipse cx="37" cy="41" rx="10.5" ry="15" fill="#149ab5"/>
@@ -321,30 +315,50 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 </section>
 
 <script>
-// Il banner hero si rimpicciolisce man mano che si scorre la pagina,
-// fino a raggiungere un'altezza minima, poi resta fisso a quella misura.
+// Il banner hero e l'header in cima si rimpiccioliscono man mano che si
+// scorre la pagina, fino a raggiungere una misura minima, poi restano
+// fissi a quella misura.
 (function () {
   const hero = document.querySelector(".hero");
-  if (!hero) return;
+  const header = document.querySelector("header");
+  const logo = header ? header.querySelector(".logo-ghost") : null;
+  if (!hero && !header) return;
 
-  const ALTEZZA_MAX_DESKTOP = 520;
-  const ALTEZZA_MAX_MOBILE = 440;
-  const ALTEZZA_MIN_DESKTOP = 260;
-  const ALTEZZA_MIN_MOBILE = 220;
+  const ALTEZZA_MAX_DESKTOP = 400;
+  const ALTEZZA_MAX_MOBILE = 340;
+  const ALTEZZA_MIN_DESKTOP = 200;
+  const ALTEZZA_MIN_MOBILE = 170;
+
+  const HEADER_PAD_MAX = 26;
+  const HEADER_PAD_MIN = 12;
+  const LOGO_MAX = 52;
+  const LOGO_MIN = 34;
+
   const DISTANZA_SCROLL = 350; // px di scroll per completare il rimpicciolimento
 
   let aggiornamentoInCorso = false;
 
   function aggiorna() {
     const mobile = window.matchMedia("(max-width:640px)").matches;
-    const altezzaMax = mobile ? ALTEZZA_MAX_MOBILE : ALTEZZA_MAX_DESKTOP;
-    const altezzaMin = mobile ? ALTEZZA_MIN_MOBILE : ALTEZZA_MIN_DESKTOP;
-
     const scorrimento = Math.min(window.scrollY, DISTANZA_SCROLL);
     const frazione = scorrimento / DISTANZA_SCROLL;
-    const altezza = altezzaMax - (altezzaMax - altezzaMin) * frazione;
 
-    hero.style.height = altezza + "px";
+    if (hero) {
+      const altezzaMax = mobile ? ALTEZZA_MAX_MOBILE : ALTEZZA_MAX_DESKTOP;
+      const altezzaMin = mobile ? ALTEZZA_MIN_MOBILE : ALTEZZA_MIN_DESKTOP;
+      hero.style.height = (altezzaMax - (altezzaMax - altezzaMin) * frazione) + "px";
+    }
+
+    if (header) {
+      const paddingV = HEADER_PAD_MAX - (HEADER_PAD_MAX - HEADER_PAD_MIN) * frazione;
+      header.style.paddingTop = paddingV + "px";
+      header.style.paddingBottom = paddingV + "px";
+    }
+
+    if (logo) {
+      logo.style.height = (LOGO_MAX - (LOGO_MAX - LOGO_MIN) * frazione) + "px";
+    }
+
     aggiornamentoInCorso = false;
   }
 
