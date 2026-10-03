@@ -78,6 +78,178 @@ body.spooky-halloween header .logo-ghost {
 }
 
 /* ---------------------------------------------------------------
+   Compito 2 - pagina "31 brividi": le carte da girare
+   --------------------------------------------------------------- */
+
+.brividi-sottotitolo {
+  max-width: 640px;
+  margin-bottom: 40px;
+  font-size: 19px;
+  line-height: 1.8;
+}
+
+.brividi-griglia {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 22px;
+}
+
+@media (min-width: 600px) {
+  .brividi-griglia { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 900px) {
+  .brividi-griglia { grid-template-columns: repeat(3, 1fr); gap: 28px; }
+}
+
+/* La carta e' un pulsante: si gira con il tocco, con Invio o con la barra spaziatrice */
+.carta {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: normal;
+  text-align: left;
+  cursor: pointer;
+  perspective: 1100px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.carta-interna {
+  position: relative;
+  display: grid;
+  min-height: 250px;
+  transition: transform 0.6s ease;
+  transform-style: preserve-3d;
+}
+
+.carta.girata .carta-interna {
+  transform: rotateY(180deg);
+}
+
+/* Le due facce stanno una sopra l'altra: la carta e' alta quanto la piu' alta */
+.carta-faccia {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 22px 18px;
+  border: 1px solid #5c6266;
+  border-radius: 14px;
+  background: #050505;
+  color: #fff;
+  font-family: var(--spooky-macchina);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.carta-retro {
+  transform: rotateY(180deg);
+}
+
+.carta-numero {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #9aa3a8;
+}
+
+/* Il testo e' un blocco normale (cosi' la parola in turchese resta dentro la frase);
+   i margini automatici lo centrano in verticale tra numero e invito */
+.carta-testo {
+  display: block;
+  margin: auto 0;
+  font-size: 17px;
+  line-height: 1.65;
+  letter-spacing: 0.01em;
+}
+
+.carta-suggerimento {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: #9aa3a8;
+}
+
+.carta-chiave {
+  color: var(--spooky-turchese);
+}
+
+.carta-pie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.carta-fantasmino {
+  flex-shrink: 0;
+  width: 24px;
+  height: 27px;
+}
+
+.carta:not(.carta-bloccata):hover .carta-fronte {
+  border-color: #8a9296;
+}
+
+.carta:focus-visible {
+  outline: none;
+}
+
+.carta:focus-visible .carta-faccia {
+  outline: 2px solid var(--spooky-turchese);
+  outline-offset: 3px;
+}
+
+/* Carta ancora chiusa: lucchetto e data di apertura, non si gira */
+.carta-bloccata {
+  cursor: default;
+}
+
+.carta-bloccata .carta-faccia {
+  border-color: #33383b;
+  background: #0b0d0e;
+  color: #7d868b;
+}
+
+.carta-testo-centrato {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.carta-lucchetto {
+  width: 34px;
+  height: 34px;
+  fill: none;
+  stroke: #7d868b;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Quando si arriva da un link diretto (31-brividi.html#n3) la carta lampeggia un secondo */
+.carta-evidenziata .carta-faccia {
+  animation: spookyEvidenzia 1.1s ease-out;
+}
+
+@keyframes spookyEvidenzia {
+  0% { box-shadow: 0 0 0 0 rgba(20, 154, 181, 0.9); border-color: var(--spooky-turchese); }
+  60% { box-shadow: 0 0 0 10px rgba(20, 154, 181, 0.25); border-color: var(--spooky-turchese); }
+  100% { box-shadow: 0 0 0 14px rgba(20, 154, 181, 0); }
+}
+
+/* Il fantasmino (stesso disegno della barra annunci) */
+.spooky-fantasma-corpo { fill: #ffffff; }
+.spooky-fantasma-occhio { fill: var(--spooky-turchese); }
+
+/* ---------------------------------------------------------------
    Chi ha disattivato le animazioni: tutto compare senza movimento
    --------------------------------------------------------------- */
 
@@ -85,6 +257,16 @@ body.spooky-halloween header .logo-ghost {
   .spooky-barra,
   #spooky-atmosfera {
     transition: none;
+  }
+
+  .carta-interna {
+    transition: none;
+  }
+
+  .carta-evidenziata .carta-faccia {
+    animation: none;
+    border-color: var(--spooky-turchese);
+    box-shadow: 0 0 0 4px rgba(20, 154, 181, 0.4);
   }
 
   body.spooky-halloween header .logo-ghost {

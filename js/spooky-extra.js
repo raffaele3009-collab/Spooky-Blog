@@ -216,6 +216,41 @@
     return 'spooky-blog.html?post=' + encodeURIComponent(post._id);
   }
 
+  const RIDUCI_MOVIMENTO = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+
+  function creaElemento(tag, classe, testo) {
+    const e = document.createElement(tag);
+    if (classe) e.className = classe;
+    if (testo) e.textContent = testo;
+    return e;
+  }
+
+  // Il fantasmino del sito (lo stesso disegno della barra annunci).
+  // I colori si cambiano da css/spooky-extra.css.
+  function creaFantasma(classe) {
+    const svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 100 112');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('class', classe);
+
+    const corpo = document.createElementNS(SVG_NS, 'path');
+    corpo.setAttribute('class', 'spooky-fantasma-corpo');
+    corpo.setAttribute('d', 'M50 3 C26 3 11 22 11 46 L11 93 C11 98 14 100 18 99 C23 98 26 95 31 96 C37 97 42 100 50 100 C58 100 63 97 69 96 C74 95 77 98 82 99 C86 100 89 98 89 93 L89 46 C89 22 74 3 50 3 Z');
+    svg.appendChild(corpo);
+
+    [37, 63].forEach(function (cx) {
+      const occhio = document.createElementNS(SVG_NS, 'ellipse');
+      occhio.setAttribute('class', 'spooky-fantasma-occhio');
+      occhio.setAttribute('cx', cx);
+      occhio.setAttribute('cy', 41);
+      occhio.setAttribute('rx', 10.5);
+      occhio.setAttribute('ry', 15);
+      svg.appendChild(occhio);
+    });
+    return svg;
+  }
+
   /* =====================================================================
      COMPITO 1 - IL SITO CHE SA CHE ORE SONO
      ===================================================================== */
@@ -338,8 +373,189 @@
   }
 
   /* =====================================================================
+     COMPITO 2 - LA PAGINA "31 BRIVIDI" CON LE CARTE DA GIRARE
+     Le storie stanno in data/brividi.json: per aggiungerne una basta
+     aggiungere una riga li' dentro, senza toccare questo codice.
+     ===================================================================== */
+
+  const FILE_BRIVIDI = 'data/brividi.json';
+  const TOTALE_CARTE = 31;
+  // Ora italiana alla quale si apre la carta del giorno
+  const ORA_SBLOCCO = '13:00';
+  const MESI = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'luglio',
+    'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'];
+
+  // "2026-10-12" -> "12 ottobre"
+  function dataEstesa(iso) {
+    const p = iso.split('-').map(Number);
+    return p[2] + ' ' + MESI[p[1] - 1];
+  }
+
+  // Cerca la parola chiave dentro la frase. Preferisce la parola intera
+  // (cosi' "me" non si accende dentro un'altra parola); se non la trova
+  // intera usa la prima occorrenza. Ritorna -1 se non c'e'.
+  function trovaChiave(testo, chiave) {
+    if (!chiave) return -1;
+    const minuscolo = testo.toLowerCase();
+    const cerca = chiave.toLowerCase();
+    const lettera = /[\p{L}\p{N}]/u;
+    let da = 0;
+    let primo = -1;
+
+    while (true) {
+      const i = minuscolo.indexOf(cerca, da);
+      if (i === -1) break;
+      if (primo === -1) primo = i;
+      const prima = i > 0 ? testo.charAt(i - 1) : '';
+      const dopo = testo.charAt(i + cerca.length);
+      if (!lettera.test(prima) && !lettera.test(dopo)) return i;
+      da = i + 1;
+    }
+    return primo;
+  }
+
+  function creaLucchetto() {
+    const svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('class', 'carta-lucchetto');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.innerHTML = '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>';
+    return svg;
+  }
+
+  function creaCartaBloccata(n, etichetta) {
+    const carta = creaElemento('button', 'carta carta-bloccata');
+    carta.type = 'button';
+    carta.id = 'n' + n;
+    carta.setAttribute('aria-disabled', 'true');
+
+    const interna = creaElemento('span', 'carta-interna');
+    const fronte = creaElemento('span', 'carta-faccia carta-fronte');
+    fronte.appendChild(creaElemento('span', 'carta-numero', 'n. ' + n + '/' + TOTALE_CARTE));
+
+    const centro = creaElemento('span', 'carta-testo carta-testo-centrato');
+    centro.appendChild(creaLucchetto());
+    centro.appendChild(creaElemento('span', 'carta-bloccata-testo', etichetta));
+    fronte.appendChild(centro);
+    fronte.appendChild(creaElemento('span', 'carta-suggerimento', ' '));
+
+    interna.appendChild(fronte);
+    carta.appendChild(interna);
+    return carta;
+  }
+
+  function creaCartaAperta(n, dati) {
+    const carta = creaElemento('button', 'carta');
+    carta.type = 'button';
+    carta.id = 'n' + n;
+    carta.setAttribute('aria-pressed', 'false');
+
+    const interna = creaElemento('span', 'carta-interna');
+
+    // Fronte: numero, prima frase, invito a girare
+    const fronte = creaElemento('span', 'carta-faccia carta-fronte');
+    fronte.appendChild(creaElemento('span', 'carta-numero', 'n. ' + n + '/' + TOTALE_CARTE));
+    fronte.appendChild(creaElemento('span', 'carta-testo', dati.prima));
+    fronte.appendChild(creaElemento('span', 'carta-suggerimento', 'tocca per girare ↻'));
+
+    // Retro: seconda frase con la parola chiave in turchese
+    const retro = creaElemento('span', 'carta-faccia carta-retro');
+    retro.setAttribute('aria-hidden', 'true');
+    const testoRetro = creaElemento('span', 'carta-testo');
+    const posizione = trovaChiave(dati.seconda, dati.chiave);
+    if (posizione === -1) {
+      testoRetro.textContent = dati.seconda;
+    } else {
+      testoRetro.appendChild(document.createTextNode(dati.seconda.slice(0, posizione)));
+      testoRetro.appendChild(creaElemento('span', 'carta-chiave', dati.seconda.slice(posizione, posizione + dati.chiave.length)));
+      testoRetro.appendChild(document.createTextNode(dati.seconda.slice(posizione + dati.chiave.length)));
+    }
+    retro.appendChild(testoRetro);
+
+    const pie = creaElemento('span', 'carta-pie');
+    pie.appendChild(creaFantasma('carta-fantasmino'));
+    pie.appendChild(creaElemento('span', 'carta-suggerimento', 'tocca per rigirare'));
+    retro.appendChild(pie);
+
+    interna.appendChild(fronte);
+    interna.appendChild(retro);
+    carta.appendChild(interna);
+
+    carta.addEventListener('click', function () {
+      const girata = carta.classList.toggle('girata');
+      carta.setAttribute('aria-pressed', girata ? 'true' : 'false');
+      fronte.setAttribute('aria-hidden', girata ? 'true' : 'false');
+      retro.setAttribute('aria-hidden', girata ? 'false' : 'true');
+    });
+    return carta;
+  }
+
+  function disegnaCarte(griglia, lista) {
+    const perNumero = {};
+    lista.forEach(function (voce) {
+      if (voce && voce.n >= 1 && voce.n <= TOTALE_CARTE) perNumero[voce.n] = voce;
+    });
+
+    const roma = adessoRoma();
+    const adessoTesto = roma.iso + ' ' + roma.ora;
+    // Per le carte senza dati nel JSON la data si calcola: n. 12 = 12 ottobre, ecc.
+    const primaData = lista.length && lista[0].data ? lista[0].data : roma.iso;
+    const anno = primaData.slice(0, 4);
+
+    griglia.textContent = '';
+    for (let n = 1; n <= TOTALE_CARTE; n++) {
+      const dati = perNumero[n];
+      const dataCarta = dati && dati.data ? dati.data : anno + '-10-' + due(n);
+      const bloccata = adessoTesto < dataCarta + ' ' + ORA_SBLOCCO;
+
+      if (dati && dati.prima && dati.seconda && !bloccata) {
+        griglia.appendChild(creaCartaAperta(n, dati));
+      } else if (bloccata) {
+        griglia.appendChild(creaCartaBloccata(n, 'Si apre il ' + dataEstesa(dataCarta)));
+      } else {
+        // La data e' arrivata ma la storia non e' ancora stata scritta nel JSON
+        griglia.appendChild(creaCartaBloccata(n, 'In arrivo'));
+      }
+    }
+  }
+
+  // Link diretto, per esempio 31-brividi.html#n3: scorre fino alla carta e la evidenzia
+  function vaiAllaCartaDelLink() {
+    const trovato = /^#n(\d+)$/.exec(location.hash);
+    if (!trovato) return;
+    const carta = document.getElementById('n' + trovato[1]);
+    if (!carta) return;
+
+    carta.scrollIntoView({ block: 'center', behavior: RIDUCI_MOVIMENTO ? 'auto' : 'smooth' });
+    carta.classList.add('carta-evidenziata');
+    setTimeout(function () { carta.classList.remove('carta-evidenziata'); }, 1200);
+  }
+
+  function avviaBrividi() {
+    const griglia = document.getElementById('brividi-griglia');
+    if (!griglia) return;
+
+    // "no-cache": cosi' le storie nuove si vedono subito, senza aspettare la cache
+    fetch(FILE_BRIVIDI, { cache: 'no-cache' })
+      .then(function (risposta) {
+        if (!risposta.ok) throw new Error('Risposta ' + risposta.status);
+        return risposta.json();
+      })
+      .then(function (lista) {
+        disegnaCarte(griglia, Array.isArray(lista) ? lista : []);
+        vaiAllaCartaDelLink();
+        window.addEventListener('hashchange', vaiAllaCartaDelLink);
+      })
+      .catch(function () {
+        griglia.textContent = '';
+        griglia.appendChild(creaElemento('div', 'empty-note', 'Non riesco a caricare le carte al momento. Riprova tra poco.'));
+      });
+  }
+
+  /* =====================================================================
      AVVIO
      ===================================================================== */
 
   avviaMessaggi();
+  avviaBrividi();
 })();
