@@ -1,0 +1,94 @@
+/* Spooky - stili condivisi per gli effetti (barra messaggi, atmosfera,
+   carte "31 brividi", fantasmino). Il codice e' in js/spooky-extra.js */
+
+:root {
+  --spooky-turchese: #149ab5;
+  --spooky-scuro: #0f161b;
+  --spooky-macchina: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Courier New", Courier, monospace;
+  /* Questi due li scrive il JavaScript in base all'ora */
+  --spooky-buio: 0;
+  --spooky-grana: 0.04;
+}
+
+/* ---------------------------------------------------------------
+   Compito 1 - barra messaggi
+   --------------------------------------------------------------- */
+
+.spooky-barra {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  background: var(--spooky-scuro);
+  color: #d3ecf0;
+  font-family: var(--spooky-macchina);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-align: center;
+  transition: opacity 1.8s ease, max-height 1s ease;
+}
+
+.spooky-barra.visibile {
+  max-height: 120px;
+  opacity: 1;
+}
+
+.spooky-barra-interno {
+  padding: 9px 16px;
+  line-height: 1.5;
+}
+
+.spooky-barra a {
+  color: var(--spooky-turchese);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ---------------------------------------------------------------
+   Compito 1 - buio e grana da pellicola
+   Un velo che non blocca i tocchi: scurisce un po' e aggiunge la grana.
+   --------------------------------------------------------------- */
+
+#spooky-atmosfera {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+  background: rgba(0, 0, 0, var(--spooky-buio));
+  transition: background 1s ease;
+}
+
+#spooky-atmosfera::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: var(--spooky-grana);
+  background-size: 180px 180px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Tema del 31 ottobre: il fantasmino del logo pulsa di turchese */
+body.spooky-halloween header .logo-ghost {
+  animation: spookyBattito 2.8s ease-in-out infinite;
+}
+
+@keyframes spookyBattito {
+  0%, 100% { filter: drop-shadow(0 0 2px rgba(20, 154, 181, 0.25)); }
+  50% { filter: drop-shadow(0 0 9px rgba(20, 154, 181, 0.95)); }
+}
+
+/* ---------------------------------------------------------------
+   Chi ha disattivato le animazioni: tutto compare senza movimento
+   --------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .spooky-barra,
+  #spooky-atmosfera {
+    transition: none;
+  }
+
+  body.spooky-halloween header .logo-ghost {
+    animation: none;
+    filter: drop-shadow(0 0 6px rgba(20, 154, 181, 0.8));
+  }
+}
