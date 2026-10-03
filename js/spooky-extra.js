@@ -553,9 +553,199 @@
   }
 
   /* =====================================================================
+     COMPITO 3 - IL FANTASMINO SPOOKY
+     Sbuca dall'angolo in basso a destra con un fumetto e propone un racconto:
+       3a) all'apertura del sito (una volta per visita)
+       3b) quando si arriva in fondo a un racconto
+     Se i post non si caricano, il fantasmino semplicemente non compare.
+     ===================================================================== */
+
+  const ISTANTE_APERTURA_MS = 2500;
+  const CHIAVE_APERTURA = 'spooky_fantasma_aperto'; // sessionStorage: "gia' comparso in questa visita"
+  const CHIAVE_ULTIMO = 'spooky_ultimo_suggerito'; // localStorage: per proporre un titolo diverso
+  const LINK_INSTAGRAM = 'https://www.instagram.com/_spookymanager_/';
+
+  let aperturaGiaMostrata = false; // di riserva, se sessionStorage non funziona
+  let fantasmaAttivo = null;
+
+  function eDiNotte() {
+    return dentro(adesso().minuti, '00:00', '04:59');
+  }
+
+  // Sulla pagina del blog: la vista di un racconto aperto
+  function articoloAperto() {
+    const vista = document.getElementById('vista-articolo');
+    return !!vista && !vista.classList.contains('nascosto');
+  }
+
+  function idArticoloCorrente() {
+    return new URLSearchParams(location.search).get('post');
+  }
+
+  function postCasuale(lista, escludiId) {
+    const candidati = lista.filter(function (p) { return p._id !== escludiId; });
+    return candidati.length ? candidati[Math.floor(Math.random() * candidati.length)] : null;
+  }
+
+  function chiudiFantasma(subito) {
+    const f = fantasmaAttivo;
+    if (!f) return;
+    fantasmaAttivo = null;
+
+    if (subito || RIDUCI_MOVIMENTO) {
+      f.remove();
+      return;
+    }
+    f.classList.add('spooky-fantasma-esce');
+    setTimeout(function () { f.remove(); }, 600);
+  }
+
+  // Titolo del racconto come link. Sulla pagina del blog il racconto si apre
+  // sulla stessa pagina e si torna in cima; altrove si cambia pagina.
+  function creaLinkPost(post) {
+    const a = creaElemento('a', 'spooky-fumetto-link', post.titolo);
+    a.href = linkAlPost(post);
+    a.addEventListener('click', function (evento) {
+      if (evento.button !== 0 || evento.metaKey || evento.ctrlKey || evento.shiftKey) return;
+      if (typeof window.mostraArticolo !== 'function') return;
+
+      evento.preventDefault();
+      window.mostraArticolo(post._id);
+      if (location.search.indexOf(post._id) === -1) {
+        // Il racconto non era nella lista della pagina: apriamolo normalmente
+        location.href = a.href;
+        return;
+      }
+      chiudiFantasma(false);
+    });
+    return a;
+  }
+
+  // Mostra il fantasmino. "riempi" scrive il contenuto dentro il paragrafo del fumetto.
+  function mostraFantasma(riempi) {
+    chiudiFantasma(true);
+
+    const contenitore = creaElemento('div', 'spooky-fantasma');
+    contenitore.setAttribute('role', 'status');
+    contenitore.setAttribute('aria-live', 'polite');
+
+    const fumetto = creaElemento('div', 'spooky-fumetto');
+    const chiudi = creaElemento('button', 'spooky-fumetto-chiudi', '✕');
+    chiudi.type = 'button';
+    chiudi.setAttribute('aria-label', 'Chiudi');
+    chiudi.addEventListener('click', function () { chiudiFantasma(false); });
+
+    const testo = creaElemento('p', 'spooky-fumetto-testo');
+    riempi(testo);
+
+    fumetto.appendChild(chiudi);
+    fumetto.appendChild(testo);
+    contenitore.appendChild(fumetto);
+    contenitore.appendChild(creaFantasma('spooky-fantasma-img'));
+    document.body.appendChild(contenitore);
+    fantasmaAttivo = contenitore;
+  }
+
+  // "Prova a leggere… «Titolo»" -> testo, link col titolo, testo
+  function fraseConTitolo(prima, post, dopo) {
+    return function (paragrafo) {
+      paragrafo.appendChild(document.createTextNode(prima));
+      paragrafo.appendChild(creaLinkPost(post));
+      paragrafo.appendChild(document.createTextNode(dopo));
+    };
+  }
+
+  // 3a - all'apertura del sito
+  function avviaFantasmaApertura() {
+    if (articoloAperto()) return;
+    if (aperturaGiaMostrata) return;
+    if (!VISITATORE_NUOVO && leggiMemoria('sessionStorage', CHIAVE_APERTURA)) return;
+
+    // Chiede i post un attimo dopo il caricamento della pagina, cosi' non
+    // li rallenta, ma sono pronti quando scatta il momento del fantasmino
+    setTimeout(postDisponibili, 900);
+
+    setTimeout(function () {
+      if (articoloAperto() || aperturaGiaMostrata) return;
+
+      postDisponibili().then(function (lista) {
+        if (!lista || !lista.length) return;
+        if (articoloAperto() || aperturaGiaMostrata) return;
+
+        // Un titolo diverso da quello proposto l'ultima volta (se ce n'e' piu' di uno)
+        const ultimo = VISITATORE_NUOVO ? null : leggiMemoria('localStorage', CHIAVE_ULTIMO);
+        const post = postCasuale(lista, ultimo) || lista[0];
+
+        aperturaGiaMostrata = true;
+        scriviMemoria('sessionStorage', CHIAVE_APERTURA, '1');
+        if (!VISITATORE_NUOVO) scriviMemoria('localStorage', CHIAVE_ULTIMO, post._id);
+
+        const prima = eDiNotte() ? 'Sei ancora sveglio? Allora leggi… «' : 'Prova a leggere… «';
+        mostraFantasma(fraseConTitolo(prima, post, '»'));
+      });
+    }, ISTANTE_APERTURA_MS);
+  }
+
+  // 3b - in fondo a un racconto
+  function avviaFantasmaFineArticolo() {
+    const contenuto = document.getElementById('articolo-contenuto');
+    if (!contenuto || !('IntersectionObserver' in window)) return;
+
+    // Un segnaposto invisibile subito sotto il testo: quando entra nello
+    // schermo, il lettore e' arrivato alla fine. (Sta fuori da
+    // #articolo-contenuto perche' la pagina riscrive il suo contenuto.)
+    const fine = creaElemento('div');
+    fine.id = 'spooky-fine-articolo';
+    fine.style.height = '1px';
+    fine.setAttribute('aria-hidden', 'true');
+    contenuto.insertAdjacentElement('afterend', fine);
+
+    const giaProposti = {};
+
+    function fineArticolo() {
+      const id = idArticoloCorrente();
+      if (!articoloAperto() || !id || giaProposti[id]) return;
+
+      postDisponibili().then(function (lista) {
+        if (!lista || !articoloAperto() || idArticoloCorrente() !== id || giaProposti[id]) return;
+        giaProposti[id] = true;
+
+        const altro = postCasuale(lista, id);
+        if (altro) {
+          const prima = eDiNotte() ? 'Non riesci a dormire, vero? Prova «' : 'Ne vuoi un’altra? Prova «';
+          mostraFantasma(fraseConTitolo(prima, altro, '».'));
+        } else {
+          // C'e' solo questo racconto: si rimanda a Instagram
+          mostraFantasma(function (paragrafo) {
+            paragrafo.appendChild(document.createTextNode('Ti è piaciuta? Ogni giorno una storia nuova su '));
+            const a = creaElemento('a', 'spooky-fumetto-link', 'Instagram');
+            a.href = LINK_INSTAGRAM;
+            a.target = '_blank';
+            a.rel = 'noopener';
+            paragrafo.appendChild(a);
+          });
+        }
+      });
+    }
+
+    const osservatore = new IntersectionObserver(function (voci) {
+      if (voci.some(function (v) { return v.isIntersecting; })) fineArticolo();
+    });
+    osservatore.observe(fine);
+
+    // Quando la pagina cambia racconto riscrive il testo: si ricomincia a osservare
+    new MutationObserver(function () {
+      osservatore.unobserve(fine);
+      osservatore.observe(fine);
+    }).observe(contenuto, { childList: true });
+  }
+
+  /* =====================================================================
      AVVIO
      ===================================================================== */
 
   avviaMessaggi();
   avviaBrividi();
+  avviaFantasmaApertura();
+  avviaFantasmaFineArticolo();
 })();

@@ -250,6 +250,125 @@ body.spooky-halloween header .logo-ghost {
 .spooky-fantasma-occhio { fill: var(--spooky-turchese); }
 
 /* ---------------------------------------------------------------
+   Compito 3 - il fantasmino che sbuca dall'angolo in basso a destra
+   --------------------------------------------------------------- */
+
+.spooky-fantasma {
+  position: fixed;
+  right: 12px;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  z-index: 1100;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  max-width: calc(100vw - 24px);
+  pointer-events: none;
+  animation: spookySale 0.8s cubic-bezier(0.2, 0.85, 0.3, 1.15) both;
+}
+
+.spooky-fantasma > * {
+  pointer-events: auto;
+}
+
+.spooky-fantasma-img {
+  flex-shrink: 0;
+  width: 56px;
+  height: 63px;
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.35));
+  animation: spookyOndeggia 3.4s ease-in-out 0.9s infinite;
+}
+
+@media (min-width: 900px) {
+  .spooky-fantasma-img { width: 72px; height: 81px; }
+}
+
+.spooky-fumetto {
+  position: relative;
+  box-sizing: border-box;
+  max-width: min(70vw, 320px);
+  margin-bottom: 12px;
+  padding: 12px 36px 12px 14px;
+  border: 1px solid #2c3a40;
+  border-radius: 14px 14px 4px 14px;
+  background: var(--spooky-scuro);
+  color: #e8f3f5;
+  font-family: var(--spooky-macchina);
+  font-size: 13.5px;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  animation: spookyApri 0.45s ease 0.55s both;
+}
+
+/* La codina del fumetto, rivolta verso il fantasmino */
+.spooky-fumetto::after {
+  content: "";
+  position: absolute;
+  right: -7px;
+  bottom: 18px;
+  width: 12px;
+  height: 12px;
+  border-top: 1px solid #2c3a40;
+  border-right: 1px solid #2c3a40;
+  background: var(--spooky-scuro);
+  transform: rotate(45deg);
+}
+
+.spooky-fumetto-testo {
+  margin: 0;
+}
+
+.spooky-fumetto-link {
+  color: var(--spooky-turchese);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.spooky-fumetto-chiudi {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #9aa3a8;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.spooky-fumetto-chiudi:hover,
+.spooky-fumetto-chiudi:focus-visible {
+  color: #fff;
+}
+
+.spooky-fantasma-esce {
+  animation: spookyEsce 0.55s ease forwards;
+}
+
+@keyframes spookySale {
+  from { transform: translateY(140%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes spookyOndeggia {
+  0%, 100% { transform: rotate(-4deg) translateY(0); }
+  50% { transform: rotate(4deg) translateY(-4px); }
+}
+
+@keyframes spookyApri {
+  from { opacity: 0; transform: translateY(8px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes spookyEsce {
+  to { opacity: 0; transform: translateY(24px); }
+}
+
+/* ---------------------------------------------------------------
    Chi ha disattivato le animazioni: tutto compare senza movimento
    --------------------------------------------------------------- */
 
@@ -261,6 +380,12 @@ body.spooky-halloween header .logo-ghost {
 
   .carta-interna {
     transition: none;
+  }
+
+  .spooky-fantasma,
+  .spooky-fantasma-img,
+  .spooky-fumetto {
+    animation: none;
   }
 
   .carta-evidenziata .carta-faccia {
