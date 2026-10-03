@@ -385,6 +385,11 @@
   const MESI = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'luglio',
     'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'];
 
+  // true se la carta di quel giorno e' gia' aperta (dalle 13:00 ora italiana)
+  function cartaAperta(dataCarta, roma) {
+    return roma.iso + ' ' + roma.ora >= dataCarta + ' ' + ORA_SBLOCCO;
+  }
+
   // "2026-10-12" -> "12 ottobre"
   function dataEstesa(iso) {
     const p = iso.split('-').map(Number);
@@ -497,7 +502,6 @@
     });
 
     const roma = adessoRoma();
-    const adessoTesto = roma.iso + ' ' + roma.ora;
     // Per le carte senza dati nel JSON la data si calcola: n. 12 = 12 ottobre, ecc.
     const primaData = lista.length && lista[0].data ? lista[0].data : roma.iso;
     const anno = primaData.slice(0, 4);
@@ -506,7 +510,7 @@
     for (let n = 1; n <= TOTALE_CARTE; n++) {
       const dati = perNumero[n];
       const dataCarta = dati && dati.data ? dati.data : anno + '-10-' + due(n);
-      const bloccata = adessoTesto < dataCarta + ' ' + ORA_SBLOCCO;
+      const bloccata = !cartaAperta(dataCarta, roma);
 
       if (dati && dati.prima && dati.seconda && !bloccata) {
         griglia.appendChild(creaCartaAperta(n, dati));
@@ -549,6 +553,67 @@
       .catch(function () {
         griglia.textContent = '';
         griglia.appendChild(creaElemento('div', 'empty-note', 'Non riesco a caricare le carte al momento. Riprova tra poco.'));
+      });
+  }
+
+  // La sezione "31 brividi" della home: le ultime carte gia' aperte, nello
+  // stesso formato a finestrella delle altre sezioni (chiuse, si aprono con la freccetta).
+  const BRIVIDI_IN_HOME = 3;
+
+  function avviaBrividiHome() {
+    const contenitore = document.getElementById('home-brividi');
+    if (!contenitore) return;
+
+    fetch(FILE_BRIVIDI, { cache: 'no-cache' })
+      .then(function (risposta) {
+        if (!risposta.ok) throw new Error('Risposta ' + risposta.status);
+        return risposta.json();
+      })
+      .then(function (lista) {
+        const roma = adessoRoma();
+        const aperte = (Array.isArray(lista) ? lista : [])
+          .filter(function (voce) { return voce && voce.n && voce.data && voce.prima && cartaAperta(voce.data, roma); })
+          .sort(function (a, b) { return b.n - a.n; })
+          .slice(0, BRIVIDI_IN_HOME);
+
+        contenitore.textContent = '';
+        if (!aperte.length) {
+          contenitore.appendChild(creaElemento('div', 'empty-note', 'Presto il primo brivido!'));
+          return;
+        }
+
+        aperte.forEach(function (voce) {
+          const elemento = creaElemento('div', 'blog-acc-item');
+          const riga = creaElemento('div', 'blog-acc-riga');
+          const titolo = creaElemento('a', 'blog-acc-titolo', 'Brivido n. ' + voce.n);
+          titolo.href = '31-brividi.html#n' + voce.n;
+
+          const freccia = creaElemento('button', 'blog-acc-freccia');
+          freccia.type = 'button';
+          freccia.setAttribute('aria-expanded', 'false');
+          freccia.setAttribute('aria-label', 'Mostra o nascondi l’anteprima');
+          freccia.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+
+          const corpo = creaElemento('div', 'blog-acc-corpo');
+          corpo.appendChild(creaElemento('p', 'blog-excerpt', voce.prima));
+
+          freccia.addEventListener('click', function () {
+            const apri = !corpo.classList.contains('aperta');
+            corpo.classList.toggle('aperta', apri);
+            freccia.classList.toggle('aperta', apri);
+            freccia.setAttribute('aria-expanded', String(apri));
+          });
+
+          riga.appendChild(titolo);
+          riga.appendChild(freccia);
+          elemento.appendChild(riga);
+          elemento.appendChild(corpo);
+          contenitore.appendChild(elemento);
+        });
+      })
+      .catch(function () {
+        contenitore.textContent = '';
+        contenitore.appendChild(creaElemento('div', 'empty-note', 'Non riesco a caricare i brividi al momento.'));
       });
   }
 
@@ -746,6 +811,7 @@
 
   avviaMessaggi();
   avviaBrividi();
+  avviaBrividiHome();
   avviaFantasmaApertura();
   avviaFantasmaFineArticolo();
 })();
