@@ -1034,6 +1034,321 @@
   }
 
   /* =====================================================================
+     PARTE 2 - COMPITO 3: CONDIVIDI IL BRIVIDO
+     In fondo a ogni racconto un pulsante crea un'immagine 9:16 (pronta per le
+     stories di Instagram) con una frase del racconto. Sul telefono apre il
+     menu di condivisione, altrimenti scarica il file.
+     Tutto si disegna su un <canvas>: nessun servizio esterno.
+     ===================================================================== */
+
+  const MAX_FRASE = 220; // oltre questa lunghezza la frase scelta in automatico viene accorciata
+  const MAX_FRASE_SEGNATA = 400; // limite piu' largo per la frase scelta con data-brivido
+  const NOME_FILE_IMMAGINE = 'spooky-brivido.png';
+  const PROFILO_INSTAGRAM = '@_spookymanager_';
+  const INDIRIZZO_SITO = 'raffaele3009-collab.github.io/Spooky-Blog';
+  // Gli stessi caratteri "macchina da scrivere" del resto del sito
+  const FONT_IMMAGINE = '"SFMono-Regular", Menlo, Consolas, "Liberation Mono", "Courier New", Courier, monospace';
+  const IMMAGINE_L = 1080;
+  const IMMAGINE_A = 1920;
+  const ZONA_SICURA = 250; // spazio da lasciare vuoto in alto e in basso (stories di Instagram)
+  const COLORE_ACCENTO = '#149ab5';
+  const PERCORSO_FANTASMA = 'M50 3 C26 3 11 22 11 46 L11 93 C11 98 14 100 18 99 C23 98 26 95 31 96 C37 97 42 100 50 100 C58 100 63 97 69 96 C74 95 77 98 82 99 C86 100 89 98 89 93 L89 46 C89 22 74 3 50 3 Z';
+
+  function normalizzaTesto(testo) {
+    return String(testo).replace(/\s+/g, ' ').trim();
+  }
+
+  // La prima frase di un testo: fino al primo punto, punto esclamativo,
+  // interrogativo o puntini (con le eventuali virgolette di chiusura).
+  function primaFrase(testo) {
+    const trovata = /^(.+?[.!?…]+["'»”’)]*)(?=\s|$)/.exec(testo);
+    return trovata ? trovata[1] : testo;
+  }
+
+  // Se la frase e' troppo lunga la taglia all'ultima parola intera e aggiunge "…"
+  function accorciaFrase(frase, massimo) {
+    if (frase.length <= massimo) return frase;
+    const spazio = frase.lastIndexOf(' ', massimo - 1);
+    const taglio = spazio > massimo / 2 ? spazio : massimo;
+    return frase.slice(0, taglio).replace(/[\s,;:—-]+$/, '') + '…';
+  }
+
+  // Quale frase mettere nell'immagine:
+  //   - se nel racconto c'e' un elemento con data-brivido, quel testo
+  //   - altrimenti la prima frase (mai l'ultima: rivelerebbe il finale)
+  function fraseDaCondividere(contenuto) {
+    const segnata = contenuto.querySelector('[data-brivido]');
+    const testoSegnato = segnata ? normalizzaTesto(segnata.textContent) : '';
+    if (testoSegnato) return accorciaFrase(testoSegnato, MAX_FRASE_SEGNATA);
+
+    // innerText tiene separati i paragrafi, cosi' la prima frase non si attacca alla seconda
+    const testo = normalizzaTesto(contenuto.innerText || contenuto.textContent);
+    return accorciaFrase(primaFrase(testo), MAX_FRASE);
+  }
+
+  // Divide la frase in parole e segna in turchese quelle tra virgolette
+  function paroleColorate(frase) {
+    let dentro = false;
+    return frase.split(' ').filter(Boolean).map(function (parola) {
+      let colorata = dentro;
+      for (const lettera of parola) {
+        if (lettera === '«' || lettera === '“') {
+          dentro = true;
+          colorata = true;
+        } else if (lettera === '"') {
+          dentro = !dentro;
+          if (dentro) colorata = true;
+        } else if (lettera === '»' || lettera === '”') {
+          dentro = false;
+        }
+      }
+      return { testo: parola, colore: colorata ? COLORE_ACCENTO : '#ffffff' };
+    });
+  }
+
+  // Manda a capo le parole in righe larghe al massimo "larghezzaMax"
+  function spezzaInRighe(ctx, parole, larghezzaMax) {
+    const spazio = ctx.measureText(' ').width;
+    const righe = [];
+    let corrente = [];
+    let larghezza = 0;
+
+    parole.forEach(function (parola) {
+      const w = ctx.measureText(parola.testo).width;
+      const nuova = corrente.length ? larghezza + spazio + w : w;
+      if (corrente.length && nuova > larghezzaMax) {
+        righe.push({ parole: corrente, larghezza: larghezza });
+        corrente = [parola];
+        larghezza = w;
+      } else {
+        corrente.push(parola);
+        larghezza = nuova;
+      }
+    });
+    if (corrente.length) righe.push({ parole: corrente, larghezza: larghezza });
+    return righe;
+  }
+
+  // Disegna le righe centrate, parola per parola (ognuna col suo colore)
+  function disegnaRighe(ctx, righe, yIniziale, altezzaRiga) {
+    const spazio = ctx.measureText(' ').width;
+    righe.forEach(function (riga, i) {
+      let x = (IMMAGINE_L - riga.larghezza) / 2;
+      const y = yIniziale + i * altezzaRiga + altezzaRiga / 2;
+      riga.parole.forEach(function (parola) {
+        ctx.fillStyle = parola.colore;
+        ctx.fillText(parola.testo, x, y);
+        x += ctx.measureText(parola.testo).width + spazio;
+      });
+    });
+  }
+
+  function disegnaSfondo(ctx) {
+    // Fondo nero con un leggero chiarore al centro
+    const fondo = ctx.createRadialGradient(IMMAGINE_L / 2, 900, 60, IMMAGINE_L / 2, 960, 1250);
+    fondo.addColorStop(0, '#1a1e20');
+    fondo.addColorStop(0.55, '#0c0e0f');
+    fondo.addColorStop(1, '#000000');
+    ctx.fillStyle = fondo;
+    ctx.fillRect(0, 0, IMMAGINE_L, IMMAGINE_A);
+
+    // Grana da pellicola: un riquadro di rumore ripetuto su tutta l'immagine
+    const lato = 512;
+    const riquadro = document.createElement('canvas');
+    riquadro.width = lato;
+    riquadro.height = lato;
+    const rctx = riquadro.getContext('2d');
+    const pixel = rctx.createImageData(lato, lato);
+    for (let i = 0; i < pixel.data.length; i += 4) {
+      // Pochi livelli di grigio: la grana si vede lo stesso e il file pesa un po' meno
+      const v = Math.floor(Math.random() * 8) * 36;
+      pixel.data[i] = v;
+      pixel.data[i + 1] = v;
+      pixel.data[i + 2] = v;
+      pixel.data[i + 3] = 255;
+    }
+    rctx.putImageData(pixel, 0, 0);
+    ctx.globalAlpha = 0.08;
+    ctx.fillStyle = ctx.createPattern(riquadro, 'repeat');
+    ctx.fillRect(0, 0, IMMAGINE_L, IMMAGINE_A);
+    ctx.globalAlpha = 1;
+
+    // Vignettatura: i bordi si scuriscono
+    const vignetta = ctx.createRadialGradient(IMMAGINE_L / 2, IMMAGINE_A / 2, 450, IMMAGINE_L / 2, IMMAGINE_A / 2, 1150);
+    vignetta.addColorStop(0, 'rgba(0,0,0,0)');
+    vignetta.addColorStop(1, 'rgba(0,0,0,0.8)');
+    ctx.fillStyle = vignetta;
+    ctx.fillRect(0, 0, IMMAGINE_L, IMMAGINE_A);
+  }
+
+  function disegnaFantasmaSuTela(ctx, centroX, alto, scala) {
+    ctx.save();
+    ctx.translate(centroX - 50 * scala, alto);
+    ctx.scale(scala, scala);
+    ctx.fillStyle = '#ffffff';
+    ctx.fill(new Path2D(PERCORSO_FANTASMA));
+    ctx.fillStyle = '#000000';
+    [37, 63].forEach(function (cx) {
+      ctx.beginPath();
+      ctx.ellipse(cx, 41, 10.5, 15, 0, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    ctx.restore();
+  }
+
+  // Crea l'immagine 1080 x 1920 e la restituisce come file PNG (un "blob")
+  function creaImmagine(frase, titolo) {
+    // Aspetta i caratteri del sito (ma non piu' di un secondo e mezzo)
+    const caratteri = document.fonts && document.fonts.ready
+      ? Promise.race([document.fonts.ready, new Promise(function (r) { setTimeout(r, 1500); })])
+      : Promise.resolve();
+
+    return caratteri.then(function () {
+      const tela = document.createElement('canvas');
+      tela.width = IMMAGINE_L;
+      tela.height = IMMAGINE_A;
+      const ctx = tela.getContext('2d');
+      ctx.textBaseline = 'middle';
+      ctx.textAlign = 'left';
+
+      disegnaSfondo(ctx);
+
+      // In alto, piccolo e grigio
+      ctx.font = '400 34px ' + FONT_IMMAGINE;
+      ctx.fillStyle = '#8a9296';
+      ctx.textAlign = 'center';
+      ctx.fillText('·Racconti dal Buio·', IMMAGINE_L / 2, ZONA_SICURA + 50);
+      ctx.textAlign = 'left';
+
+      // La frase: grande, finche' sta nello spazio disponibile
+      const larghezzaMax = IMMAGINE_L - 2 * 110;
+      const altezzaMaxFrase = 680; // cosi' resta sempre aria tra il titolo e il fantasmino in basso
+      const parole = paroleColorate(frase);
+      let dimensione = 78;
+      let righe;
+      let altezzaRiga;
+      for (; dimensione >= 34; dimensione -= 2) {
+        ctx.font = '400 ' + dimensione + 'px ' + FONT_IMMAGINE;
+        righe = spezzaInRighe(ctx, parole, larghezzaMax);
+        altezzaRiga = Math.round(dimensione * 1.38);
+        if (righe.length * altezzaRiga <= altezzaMaxFrase) break;
+      }
+      const altezzaFrase = righe.length * altezzaRiga;
+
+      // Sotto la frase, piu' piccolo: il titolo del racconto
+      ctx.font = '400 40px ' + FONT_IMMAGINE;
+      const righeTitolo = spezzaInRighe(ctx, paroleDaTesto('— «' + titolo + '»'), larghezzaMax);
+      const altezzaTitolo = righeTitolo.length * 54;
+
+      const distanza = 70;
+      const totale = altezzaFrase + distanza + altezzaTitolo;
+      const inizio = Math.max(ZONA_SICURA + 130, 900 - totale / 2);
+
+      ctx.font = '400 ' + dimensione + 'px ' + FONT_IMMAGINE;
+      disegnaRighe(ctx, righe, inizio, altezzaRiga);
+
+      ctx.font = '400 40px ' + FONT_IMMAGINE;
+      disegnaRighe(ctx, righeTitolo, inizio + altezzaFrase + distanza, 54);
+
+      // In basso: fantasmino, profilo Instagram e indirizzo del sito
+      disegnaFantasmaSuTela(ctx, IMMAGINE_L / 2, IMMAGINE_A - ZONA_SICURA - 255, 1.15);
+      ctx.textAlign = 'center';
+      ctx.font = '400 46px ' + FONT_IMMAGINE;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(PROFILO_INSTAGRAM, IMMAGINE_L / 2, IMMAGINE_A - ZONA_SICURA - 62);
+      ctx.font = '400 28px ' + FONT_IMMAGINE;
+      ctx.fillStyle = '#8a9296';
+      ctx.fillText(INDIRIZZO_SITO, IMMAGINE_L / 2, IMMAGINE_A - ZONA_SICURA - 18);
+
+      return new Promise(function (risolvi, rifiuta) {
+        tela.toBlob(function (blob) {
+          if (blob) risolvi(blob); else rifiuta(new Error('Immagine non creata'));
+        }, 'image/png');
+      });
+    });
+  }
+
+  // Parole di un testo semplice, tutte dello stesso colore (per il titolo)
+  function paroleDaTesto(testo) {
+    return testo.split(' ').filter(Boolean).map(function (parola) {
+      return { testo: parola, colore: '#c9d0d3' };
+    });
+  }
+
+  function scaricaImmagine(blob) {
+    const indirizzo = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = indirizzo;
+    a.download = NOME_FILE_IMMAGINE;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(indirizzo); }, 4000);
+  }
+
+  // Sul telefono apre il menu di condivisione (da li' si sceglie Instagram);
+  // dove non si puo', scarica il file. Ritorna 'condiviso', 'annullato' o 'scaricato'.
+  async function condividiImmagine(blob) {
+    const file = new File([blob], NOME_FILE_IMMAGINE, { type: 'image/png' });
+
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], text: 'Tagga ' + PROFILO_INSTAGRAM });
+        return 'condiviso';
+      } catch (errore) {
+        if (errore && errore.name === 'AbortError') return 'annullato'; // il lettore ha chiuso il menu
+        // qualunque altro problema: si ripiega sul download
+      }
+    }
+    scaricaImmagine(blob);
+    return 'scaricato';
+  }
+
+  function avviaCondividi() {
+    const contenuto = document.getElementById('articolo-contenuto');
+    const titolo = document.getElementById('articolo-titolo');
+    if (!contenuto || !titolo) return;
+
+    const blocco = creaElemento('div', 'spooky-condividi');
+    const pulsante = creaElemento('button', 'spooky-condividi-pulsante', 'Condividi il brivido');
+    pulsante.type = 'button';
+    const nota = creaElemento('div', 'spooky-condividi-nota', 'Crea un’immagine per le tue stories e tagga ' + PROFILO_INSTAGRAM);
+    const messaggio = creaElemento('div', 'spooky-condividi-messaggio');
+    messaggio.setAttribute('role', 'status');
+    messaggio.setAttribute('aria-live', 'polite');
+    blocco.appendChild(pulsante);
+    blocco.appendChild(nota);
+    blocco.appendChild(messaggio);
+
+    // Subito sotto il testo (e il suo segnaposto di fine), prima del box Instagram
+    const dopo = document.getElementById('spooky-fine-articolo') || contenuto;
+    dopo.insertAdjacentElement('afterend', blocco);
+
+    pulsante.addEventListener('click', async function () {
+      if (pulsante.disabled) return;
+      pulsante.disabled = true;
+      pulsante.textContent = 'Sto evocando l’immagine…';
+      messaggio.textContent = '';
+
+      try {
+        const immagine = await creaImmagine(fraseDaCondividere(contenuto), normalizzaTesto(titolo.textContent));
+        const esito = await condividiImmagine(immagine);
+        if (esito === 'scaricato') {
+          messaggio.textContent = 'Immagine salvata. Pubblicala nelle tue stories e tagga ' + PROFILO_INSTAGRAM + '.';
+        }
+      } catch (errore) {
+        messaggio.textContent = 'Non ci sono riuscito, riprova.';
+      } finally {
+        pulsante.disabled = false;
+        pulsante.textContent = 'Condividi il brivido';
+      }
+    });
+
+    // Quando si passa a un altro racconto il messaggio precedente non vale piu'
+    new MutationObserver(function () { messaggio.textContent = ''; }).observe(contenuto, { childList: true });
+  }
+
+  /* =====================================================================
      AVVIO
      ===================================================================== */
 
@@ -1044,4 +1359,5 @@
   avviaFantasmaFineArticolo();
   avviaSchedaChiama();
   avviaCandela();
+  avviaCondividi();
 })();

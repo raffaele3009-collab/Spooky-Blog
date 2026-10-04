@@ -456,6 +456,64 @@ body.spooky-halloween header .logo-ghost {
 }
 
 /* ---------------------------------------------------------------
+   Parte 2 - "Condividi il brivido" in fondo a ogni racconto
+   (si usano <div> e non <p> perche' la pagina ridimensiona i <p> del racconto)
+   --------------------------------------------------------------- */
+
+.spooky-condividi {
+  margin: 40px 0 8px;
+  text-align: center;
+}
+
+.spooky-condividi-pulsante {
+  display: inline-block;
+  padding: 16px 34px;
+  border: 1.4px solid var(--spooky-turchese);
+  border-radius: 8px;
+  background: var(--spooky-scuro);
+  color: #fff;
+  font-family: var(--spooky-macchina);
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.spooky-condividi-pulsante:hover,
+.spooky-condividi-pulsante:focus-visible {
+  background: #1a2a32;
+}
+
+.spooky-condividi-pulsante:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+
+.spooky-condividi-nota,
+.spooky-condividi-messaggio {
+  max-width: 430px;
+  margin: 12px auto 0;
+  font-family: var(--spooky-macchina);
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+  text-align: center;
+}
+
+.spooky-condividi-nota {
+  font-size: 12.5px;
+  color: #5d7388;
+}
+
+.spooky-condividi-messaggio {
+  font-size: 14px;
+  color: #1d4e89;
+}
+
+.spooky-condividi-messaggio:empty {
+  display: none;
+}
+
+/* ---------------------------------------------------------------
    Chi ha disattivato le animazioni: tutto compare senza movimento
    --------------------------------------------------------------- */
 
