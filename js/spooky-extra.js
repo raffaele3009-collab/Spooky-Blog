@@ -921,6 +921,119 @@
   }
 
   /* =====================================================================
+     PARTE 2 - COMPITO 2: LA CANDELA CHE SI CONSUMA
+     Solo nella vista di un racconto (spooky-blog.html): una candela in alto
+     a destra che si consuma man mano che si legge e si spegne in fondo.
+     ===================================================================== */
+
+  // Il disegno della candela. Le misure sono nello spazio 20 x 70 del disegno;
+  // il codice sotto sposta cera, stoppino e fiamma man mano che si legge.
+  const CERA_BASE = 67; // dove poggia la candela
+  const CERA_PIENA = 39; // altezza della cera a inizio racconto
+  const CERA_FINITA = 3; // altezza della cera a fine racconto
+
+  const CANDELA_SVG =
+    '<svg viewBox="0 0 20 70" aria-hidden="true" focusable="false">' +
+    '<defs>' +
+    '<radialGradient id="spooky-alone-fiamma"><stop offset="0" stop-color="#ffb347" stop-opacity=".55"/><stop offset="1" stop-color="#ffb347" stop-opacity="0"/></radialGradient>' +
+    '<linearGradient id="spooky-colore-fiamma" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ff8a1f"/><stop offset=".6" stop-color="#ffc233"/><stop offset="1" stop-color="#fff0a0"/></linearGradient>' +
+    '</defs>' +
+    '<ellipse cx="10" cy="67" rx="8.5" ry="2.2" fill="#3b4348"/>' +
+    '<rect class="candela-cera" x="4" y="28" width="12" height="39" rx="1.6" fill="#e6dfca"/>' +
+    '<rect class="candela-ombra" x="12.5" y="28" width="3.5" height="39" rx="1.6" fill="#c9bfa3" opacity=".7"/>' +
+    '<g class="candela-alto" transform="translate(0 28)">' +
+    '<line x1="10" y1="0" x2="10" y2="-4.5" stroke="#3a2f28" stroke-width="1.2" stroke-linecap="round"/>' +
+    '<g class="candela-fiamma" transform="translate(10 -4)">' +
+    '<circle class="candela-alone" cy="-7" r="11" fill="url(#spooky-alone-fiamma)"/>' +
+    '<path class="candela-fiamma-corpo" d="M0 -15 C3.6 -10 4.4 -5 0 -0.5 C-4.4 -5 -3.6 -10 0 -15Z" fill="url(#spooky-colore-fiamma)"/>' +
+    '<path d="M0 -8 C1.4 -6 1.6 -3.5 0 -1.8 C-1.6 -3.5 -1.4 -6 0 -8Z" fill="#fff6c8" opacity=".85"/>' +
+    '</g>' +
+    '<g class="candela-fumo" transform="translate(10 -4.5)">' +
+    '<path d="M0 0 C-3 -4 3 -7 0 -11 C-3 -15 3 -18 0 -23" fill="none" stroke="#b9bec2" stroke-width="1.8" stroke-linecap="round"/>' +
+    '<path d="M2.2 0 C5 -5 -1 -8 2.2 -13" fill="none" stroke="#d3d6d8" stroke-width="1.3" stroke-linecap="round"/>' +
+    '</g>' +
+    '</g>' +
+    '</svg>';
+
+  function avviaCandela() {
+    const vista = document.getElementById('vista-articolo');
+    const contenuto = document.getElementById('articolo-contenuto');
+    if (!vista || !contenuto) return;
+
+    const candela = creaElemento('div', 'spooky-candela');
+    candela.id = 'spooky-candela';
+    candela.setAttribute('aria-hidden', 'true');
+    candela.innerHTML = CANDELA_SVG;
+    document.body.appendChild(candela);
+
+    const cera = candela.querySelector('.candela-cera');
+    const ombra = candela.querySelector('.candela-ombra');
+    const alto = candela.querySelector('.candela-alto');
+    const intestazione = document.querySelector('header');
+
+    let spenta = false;
+    let inAttesa = false;
+
+    function sistemaCera(letto) {
+      const altezza = CERA_PIENA - (CERA_PIENA - CERA_FINITA) * letto;
+      const y = CERA_BASE - altezza;
+      cera.setAttribute('y', y);
+      cera.setAttribute('height', altezza);
+      ombra.setAttribute('y', y);
+      ombra.setAttribute('height', altezza);
+      alto.setAttribute('transform', 'translate(0 ' + y + ')');
+    }
+
+    // Quanto del testo e' stato letto: 0 quando l'inizio del racconto arriva
+    // sotto l'intestazione, 1 quando la fine del testo arriva in fondo allo schermo
+    function calcola() {
+      inAttesa = false;
+
+      const aperta = articoloAperto();
+      candela.classList.toggle('visibile', aperta);
+      if (!aperta) return;
+
+      const sotto = intestazione ? intestazione.getBoundingClientRect().bottom : 0;
+      candela.style.top = Math.round(sotto + 10) + 'px';
+
+      const r = contenuto.getBoundingClientRect();
+      const daScorrere = r.height - (window.innerHeight - sotto);
+      let letto;
+      if (daScorrere <= 0) {
+        letto = r.bottom <= window.innerHeight ? 1 : 0; // testo corto: tutto sullo schermo
+      } else {
+        letto = (sotto - r.top) / daScorrere;
+      }
+      letto = Math.min(1, Math.max(0, letto));
+      sistemaCera(letto);
+
+      // Si spegne in fondo; se si torna su si riaccende (con un po' di margine
+      // per non farla tremolare avanti e indietro)
+      if (!spenta && letto >= 0.995) {
+        spenta = true;
+        candela.classList.add('spenta');
+      } else if (spenta && letto < 0.985) {
+        spenta = false;
+        candela.classList.remove('spenta');
+      }
+    }
+
+    // Un solo calcolo per ogni "fotogramma", anche se gli eventi di scroll sono tanti
+    function programma() {
+      if (inAttesa) return;
+      inAttesa = true;
+      requestAnimationFrame(calcola);
+    }
+
+    window.addEventListener('scroll', programma, { passive: true });
+    window.addEventListener('resize', programma);
+    // La pagina apre/chiude la vista del racconto e riscrive il testo: si ricalcola
+    new MutationObserver(programma).observe(vista, { attributes: true, attributeFilter: ['class'] });
+    new MutationObserver(programma).observe(contenuto, { childList: true });
+    programma();
+  }
+
+  /* =====================================================================
      AVVIO
      ===================================================================== */
 
@@ -930,4 +1043,5 @@
   avviaFantasmaApertura();
   avviaFantasmaFineArticolo();
   avviaSchedaChiama();
+  avviaCandela();
 })();

@@ -369,6 +369,93 @@ body.spooky-halloween header .logo-ghost {
 }
 
 /* ---------------------------------------------------------------
+   Parte 2 - la candela che si consuma (solo nella vista di un racconto)
+   --------------------------------------------------------------- */
+
+.spooky-candela {
+  position: fixed;
+  top: 96px; /* il JavaScript la mette sotto l'intestazione */
+  right: 0;
+  z-index: 90;
+  display: none;
+  width: 20px;
+  height: 70px;
+  pointer-events: none;
+}
+
+.spooky-candela.visibile {
+  display: block;
+}
+
+.spooky-candela svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+@media (min-width: 900px) {
+  .spooky-candela {
+    right: 14px;
+    width: 26px;
+    height: 90px;
+  }
+}
+
+.candela-fiamma {
+  transition: opacity 0.3s ease;
+}
+
+.candela-fiamma-corpo {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: spookyTremola 1.6s ease-in-out infinite;
+}
+
+.candela-alone {
+  animation: spookyAlone 2.2s ease-in-out infinite;
+}
+
+.candela-fumo path {
+  opacity: 0;
+}
+
+/* In fondo al racconto: la fiamma sparisce e sale un filo di fumo che si dissolve in 2 secondi */
+.spooky-candela.spenta .candela-fiamma {
+  opacity: 0;
+}
+
+.spooky-candela.spenta .candela-fumo path {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: spookyFumo 2s ease-out forwards;
+}
+
+@keyframes spookyTremola {
+  0%, 100% { transform: scale(1, 1) rotate(0deg); }
+  20% { transform: scale(0.96, 1.06) rotate(-2.5deg); }
+  45% { transform: scale(1.04, 0.95) rotate(2deg); }
+  70% { transform: scale(0.97, 1.04) rotate(-1.5deg); }
+}
+
+@keyframes spookyAlone {
+  0%, 100% { opacity: 0.75; }
+  50% { opacity: 1; }
+}
+
+@keyframes spookyFumo {
+  0% { opacity: 0; transform: translateY(2px) scaleY(0.5); }
+  15% { opacity: 0.8; }
+  100% { opacity: 0; transform: translateY(-16px) scaleY(1.3); }
+}
+
+@keyframes spookyFumoFermo {
+  0% { opacity: 0; }
+  15% { opacity: 0.8; }
+  100% { opacity: 0; }
+}
+
+/* ---------------------------------------------------------------
    Chi ha disattivato le animazioni: tutto compare senza movimento
    --------------------------------------------------------------- */
 
@@ -386,6 +473,15 @@ body.spooky-halloween header .logo-ghost {
   .spooky-fantasma-img,
   .spooky-fumetto {
     animation: none;
+  }
+
+  .candela-fiamma-corpo,
+  .candela-alone {
+    animation: none;
+  }
+
+  .spooky-candela.spenta .candela-fumo path {
+    animation: spookyFumoFermo 2s ease-out forwards;
   }
 
   .carta-evidenziata .carta-faccia {
