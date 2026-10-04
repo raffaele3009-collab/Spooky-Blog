@@ -806,6 +806,121 @@
   }
 
   /* =====================================================================
+     PARTE 2 - COMPITO 1: LA SCHEDA DEL BROWSER CHE TI CHIAMA
+     Quando il visitatore passa a un'altra scheda, il titolo e l'icona
+     della scheda lo richiamano. Quando torna, tutto si ripristina.
+     ===================================================================== */
+
+  const TITOLO_RICHIAMO = 'Torna qui…';
+  const TITOLO_SGUARDO = 'Ti sto guardando.';
+  const TITOLO_SGUARDO_NOTTE = 'Non dovresti essere sveglio.';
+  const TITOLO_RITORNO = 'Lo sapevo che saresti tornato.';
+  const INTERVALLO_TITOLI_MS = 3000; // ogni quanto i due titoli si alternano
+  const DURATA_RITORNO_MS = 2500; // quanto resta il titolo "Lo sapevo..." al ritorno
+
+  // L'icona della scheda: il fantasmino con gli occhi, su un quadrato turchese
+  // (cosi' si vede sia sulle schede chiare sia su quelle scure). E' un SVG
+  // scritto direttamente qui, senza file esterni.
+  const ICONA_FANTASMA = 'data:image/svg+xml,' + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">' +
+    '<rect width="128" height="128" rx="26" fill="#149ab5"/>' +
+    '<g transform="translate(24 22) scale(.8)">' +
+    '<path fill="#fff" d="M50 3 C26 3 11 22 11 46 L11 93 C11 98 14 100 18 99 C23 98 26 95 31 96 C37 97 42 100 50 100 C58 100 63 97 69 96 C74 95 77 98 82 99 C86 100 89 98 89 93 L89 46 C89 22 74 3 50 3 Z"/>' +
+    '<ellipse cx="37" cy="41" rx="10.5" ry="15" fill="#0f161b"/>' +
+    '<ellipse cx="63" cy="41" rx="10.5" ry="15" fill="#0f161b"/>' +
+    '</g></svg>'
+  );
+
+  function avviaSchedaChiama() {
+    let inModifica = false; // true da quando cambiamo titolo/icona fino al ripristino
+    let titoloOriginale = '';
+    let iconaOriginale = null; // l'icona che la pagina aveva (se ne aveva una)
+    let iconaCreata = null; // l'icona che aggiungiamo noi se la pagina non ne ha
+    let timerAlterna = null;
+    let timerRitorno = null;
+
+    function fermaTimer() {
+      clearInterval(timerAlterna);
+      clearTimeout(timerRitorno);
+      timerAlterna = null;
+      timerRitorno = null;
+    }
+
+    function mettiIconaFantasma() {
+      const esistente = document.querySelector('link[rel~="icon"]');
+      if (esistente && esistente !== iconaCreata) {
+        iconaOriginale = { elemento: esistente, href: esistente.getAttribute('href'), tipo: esistente.getAttribute('type') };
+        esistente.setAttribute('href', ICONA_FANTASMA);
+        esistente.setAttribute('type', 'image/svg+xml');
+      } else if (!esistente) {
+        iconaCreata = document.createElement('link');
+        iconaCreata.rel = 'icon';
+        iconaCreata.type = 'image/svg+xml';
+        iconaCreata.href = ICONA_FANTASMA;
+        document.head.appendChild(iconaCreata);
+      }
+    }
+
+    function rimettiIconaOriginale() {
+      if (iconaOriginale) {
+        const e = iconaOriginale.elemento;
+        if (iconaOriginale.href === null) e.removeAttribute('href'); else e.setAttribute('href', iconaOriginale.href);
+        if (iconaOriginale.tipo === null) e.removeAttribute('type'); else e.setAttribute('type', iconaOriginale.tipo);
+        iconaOriginale = null;
+      }
+      if (iconaCreata) {
+        iconaCreata.remove();
+        iconaCreata = null;
+      }
+    }
+
+    function ripristina() {
+      document.title = titoloOriginale;
+      rimettiIconaOriginale();
+      inModifica = false;
+    }
+
+    function titoloSguardo() {
+      return eDiNotte() ? TITOLO_SGUARDO_NOTTE : TITOLO_SGUARDO;
+    }
+
+    // Il visitatore e' andato su un'altra scheda
+    function schedaNascosta() {
+      fermaTimer();
+      if (!inModifica) {
+        titoloOriginale = document.title;
+        inModifica = true;
+      }
+      mettiIconaFantasma();
+      document.title = TITOLO_RICHIAMO;
+
+      let mostraRichiamo = true;
+      timerAlterna = setInterval(function () {
+        mostraRichiamo = !mostraRichiamo;
+        document.title = mostraRichiamo ? TITOLO_RICHIAMO : titoloSguardo();
+      }, INTERVALLO_TITOLI_MS);
+    }
+
+    // Il visitatore e' tornato: via i timer che alternano i titoli
+    function schedaVisibile() {
+      fermaTimer();
+      if (!inModifica) return;
+      document.title = TITOLO_RITORNO;
+      timerRitorno = setTimeout(function () {
+        timerRitorno = null;
+        ripristina();
+      }, DURATA_RITORNO_MS);
+    }
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) schedaNascosta(); else schedaVisibile();
+    });
+
+    // Pagina aperta direttamente in una scheda in secondo piano
+    if (document.hidden) schedaNascosta();
+  }
+
+  /* =====================================================================
      AVVIO
      ===================================================================== */
 
@@ -814,4 +929,5 @@
   avviaBrividiHome();
   avviaFantasmaApertura();
   avviaFantasmaFineArticolo();
+  avviaSchedaChiama();
 })();
