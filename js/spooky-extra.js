@@ -486,13 +486,53 @@
     interna.appendChild(retro);
     carta.appendChild(interna);
 
+    // Il pulsante "Condividi" sta accanto alla carta (non dentro: un pulsante
+    // dentro un altro pulsante non e' valido) e compare solo sul retro
+    const scatola = creaElemento('div', 'carta-scatola');
+    const condividi = creaElemento('button', 'carta-condividi');
+    condividi.type = 'button';
+    condividi.hidden = true;
+    condividi.setAttribute('aria-label', 'Condividi questo brivido');
+    condividi.title = 'Condividi';
+    condividi.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg>';
+
+    const messaggio = creaElemento('div', 'carta-messaggio');
+    messaggio.hidden = true;
+    messaggio.setAttribute('role', 'status');
+    messaggio.setAttribute('aria-live', 'polite');
+
+    scatola.appendChild(carta);
+    scatola.appendChild(condividi);
+    scatola.appendChild(messaggio);
+
     carta.addEventListener('click', function () {
       const girata = carta.classList.toggle('girata');
       carta.setAttribute('aria-pressed', girata ? 'true' : 'false');
       fronte.setAttribute('aria-hidden', girata ? 'true' : 'false');
       retro.setAttribute('aria-hidden', girata ? 'false' : 'true');
+      condividi.hidden = !girata;
     });
-    return carta;
+
+    let timerMessaggio = null;
+    condividi.addEventListener('click', async function () {
+      if (condividi.disabled) return;
+      condividi.disabled = true;
+      await eseguiCondivisione(
+        function () { return immagineDiUnaCarta(n, dati); },
+        function (testo) {
+          clearTimeout(timerMessaggio);
+          messaggio.textContent = testo;
+          messaggio.hidden = !testo;
+          // i messaggi finali spariscono dopo qualche secondo
+          if (testo && testo !== MSG_CREO_IMMAGINE) {
+            timerMessaggio = setTimeout(function () { messaggio.hidden = true; }, 6000);
+          }
+        }
+      );
+      condividi.disabled = false;
+    });
+
+    return scatola;
   }
 
   function disegnaCarte(griglia, lista) {
@@ -1196,8 +1236,15 @@
     ctx.restore();
   }
 
-  // Crea l'immagine 1080 x 1920 e la restituisce come file PNG (un "blob")
-  function creaImmagine(frase, titolo) {
+  // Crea l'immagine 1080 x 1920 e la restituisce come file PNG (un "blob").
+  //   etichetta -> la scritta piccola e grigia in alto
+  //   blocchi   -> uno o piu' blocchi di parole ({testo, colore}); tra un blocco e l'altro c'e' uno stacco
+  //   sotto     -> (facoltativo) la riga piu' piccola sotto il testo, per esempio il titolo del racconto
+  function creaImmagine(opzioni) {
+    const etichetta = opzioni.etichetta;
+    const blocchi = opzioni.blocchi;
+    const sotto = opzioni.sotto || '';
+
     // Aspetta i caratteri del sito (ma non piu' di un secondo e mezzo)
     const caratteri = document.fonts && document.fonts.ready
       ? Promise.race([document.fonts.ready, new Promise(function (r) { setTimeout(r, 1500); })])
@@ -1217,38 +1264,46 @@
       ctx.font = '400 34px ' + FONT_IMMAGINE;
       ctx.fillStyle = '#8a9296';
       ctx.textAlign = 'center';
-      ctx.fillText('·Racconti dal Buio·', IMMAGINE_L / 2, ZONA_SICURA + 50);
+      ctx.fillText(etichetta, IMMAGINE_L / 2, ZONA_SICURA + 50);
       ctx.textAlign = 'left';
 
-      // La frase: grande, finche' sta nello spazio disponibile
+      // Il testo: grande, finche' sta nello spazio disponibile
       const larghezzaMax = IMMAGINE_L - 2 * 110;
-      const altezzaMaxFrase = 680; // cosi' resta sempre aria tra il titolo e il fantasmino in basso
-      const parole = paroleColorate(frase);
+      const altezzaMaxFrase = 680; // cosi' resta sempre aria tra il testo e il fantasmino in basso
       let dimensione = 78;
-      let righe;
+      let righePerBlocco;
       let altezzaRiga;
+      let stacco; // spazio tra un blocco e il successivo
+      let altezzaFrase;
       for (; dimensione >= 34; dimensione -= 2) {
         ctx.font = '400 ' + dimensione + 'px ' + FONT_IMMAGINE;
-        righe = spezzaInRighe(ctx, parole, larghezzaMax);
+        righePerBlocco = blocchi.map(function (parole) { return spezzaInRighe(ctx, parole, larghezzaMax); });
         altezzaRiga = Math.round(dimensione * 1.38);
-        if (righe.length * altezzaRiga <= altezzaMaxFrase) break;
+        stacco = Math.round(altezzaRiga * 0.9);
+        const righeTotali = righePerBlocco.reduce(function (somma, righe) { return somma + righe.length; }, 0);
+        altezzaFrase = righeTotali * altezzaRiga + (blocchi.length - 1) * stacco;
+        if (altezzaFrase <= altezzaMaxFrase) break;
       }
-      const altezzaFrase = righe.length * altezzaRiga;
 
-      // Sotto la frase, piu' piccolo: il titolo del racconto
+      // Sotto il testo, piu' piccolo (per esempio il titolo del racconto)
       ctx.font = '400 40px ' + FONT_IMMAGINE;
-      const righeTitolo = spezzaInRighe(ctx, paroleDaTesto('— «' + titolo + '»'), larghezzaMax);
-      const altezzaTitolo = righeTitolo.length * 54;
+      const righeSotto = sotto ? spezzaInRighe(ctx, paroleDaTesto(sotto), larghezzaMax) : [];
+      const altezzaSotto = righeSotto.length * 54;
 
-      const distanza = 70;
-      const totale = altezzaFrase + distanza + altezzaTitolo;
-      const inizio = Math.max(ZONA_SICURA + 130, 900 - totale / 2);
+      const distanza = sotto ? 70 : 0;
+      const totale = altezzaFrase + distanza + altezzaSotto;
+      let y = Math.max(ZONA_SICURA + 130, 900 - totale / 2);
 
       ctx.font = '400 ' + dimensione + 'px ' + FONT_IMMAGINE;
-      disegnaRighe(ctx, righe, inizio, altezzaRiga);
+      righePerBlocco.forEach(function (righe, i) {
+        disegnaRighe(ctx, righe, y, altezzaRiga);
+        y += righe.length * altezzaRiga + (i < righePerBlocco.length - 1 ? stacco : 0);
+      });
 
-      ctx.font = '400 40px ' + FONT_IMMAGINE;
-      disegnaRighe(ctx, righeTitolo, inizio + altezzaFrase + distanza, 54);
+      if (righeSotto.length) {
+        ctx.font = '400 40px ' + FONT_IMMAGINE;
+        disegnaRighe(ctx, righeSotto, y + distanza, 54);
+      }
 
       // In basso: fantasmino, profilo Instagram e indirizzo del sito
       disegnaFantasmaSuTela(ctx, IMMAGINE_L / 2, IMMAGINE_A - ZONA_SICURA - 255, 1.15);
@@ -1268,10 +1323,10 @@
     });
   }
 
-  // Parole di un testo semplice, tutte dello stesso colore (per il titolo)
-  function paroleDaTesto(testo) {
+  // Parole di un testo semplice, tutte dello stesso colore (di solito grigio chiaro, per il titolo)
+  function paroleDaTesto(testo, colore) {
     return testo.split(' ').filter(Boolean).map(function (parola) {
-      return { testo: parola, colore: '#c9d0d3' };
+      return { testo: parola, colore: colore || '#c9d0d3' };
     });
   }
 
@@ -1304,6 +1359,45 @@
     return 'scaricato';
   }
 
+  const MSG_CREO_IMMAGINE = 'Sto evocando l’immagine…';
+  const MSG_IMMAGINE_SALVATA = 'Immagine salvata. Pubblicala nelle tue stories e tagga ' + PROFILO_INSTAGRAM + '.';
+  const MSG_ERRORE_IMMAGINE = 'Non ci sono riuscito, riprova.';
+
+  // Il percorso completo: crea l'immagine, poi la condivide o la scarica.
+  // "comunica" riceve i messaggi da mostrare (stringa vuota = nessun messaggio).
+  async function eseguiCondivisione(generaImmagine, comunica) {
+    comunica(MSG_CREO_IMMAGINE);
+    try {
+      const immagine = await generaImmagine();
+      const esito = await condividiImmagine(immagine);
+      comunica(esito === 'scaricato' ? MSG_IMMAGINE_SALVATA : '');
+    } catch (errore) {
+      comunica(MSG_ERRORE_IMMAGINE);
+    }
+  }
+
+  // Le parole di una frase, con quelle che toccano la parola chiave in turchese
+  function paroleConChiave(testo, chiave) {
+    const inizioChiave = trovaChiave(testo, chiave);
+    const fineChiave = inizioChiave === -1 ? -1 : inizioChiave + chiave.length;
+    const parole = [];
+    const unaParola = /\S+/g;
+    let trovata;
+    while ((trovata = unaParola.exec(testo))) {
+      const tocca = inizioChiave !== -1 && trovata.index < fineChiave && trovata.index + trovata[0].length > inizioChiave;
+      parole.push({ testo: trovata[0], colore: tocca ? COLORE_ACCENTO : '#ffffff' });
+    }
+    return parole;
+  }
+
+  // L'immagine di una carta di "31 brividi": prima frase, poi seconda con la parola chiave in turchese
+  function immagineDiUnaCarta(n, dati) {
+    return creaImmagine({
+      etichetta: '31 brividi · n. ' + n + '/' + TOTALE_CARTE,
+      blocchi: [paroleDaTesto(dati.prima, '#ffffff'), paroleConChiave(dati.seconda, dati.chiave)]
+    });
+  }
+
   function avviaCondividi() {
     const contenuto = document.getElementById('articolo-contenuto');
     const titolo = document.getElementById('articolo-titolo');
@@ -1327,21 +1421,22 @@
     pulsante.addEventListener('click', async function () {
       if (pulsante.disabled) return;
       pulsante.disabled = true;
-      pulsante.textContent = 'Sto evocando l’immagine…';
+      pulsante.textContent = MSG_CREO_IMMAGINE;
       messaggio.textContent = '';
 
-      try {
-        const immagine = await creaImmagine(fraseDaCondividere(contenuto), normalizzaTesto(titolo.textContent));
-        const esito = await condividiImmagine(immagine);
-        if (esito === 'scaricato') {
-          messaggio.textContent = 'Immagine salvata. Pubblicala nelle tue stories e tagga ' + PROFILO_INSTAGRAM + '.';
-        }
-      } catch (errore) {
-        messaggio.textContent = 'Non ci sono riuscito, riprova.';
-      } finally {
-        pulsante.disabled = false;
-        pulsante.textContent = 'Condividi il brivido';
-      }
+      await eseguiCondivisione(
+        function () {
+          return creaImmagine({
+            etichetta: '·Racconti dal Buio·',
+            blocchi: [paroleColorate(fraseDaCondividere(contenuto))],
+            sotto: '— «' + normalizzaTesto(titolo.textContent) + '»'
+          });
+        },
+        function (testo) { if (testo !== MSG_CREO_IMMAGINE) messaggio.textContent = testo; }
+      );
+
+      pulsante.disabled = false;
+      pulsante.textContent = 'Condividi il brivido';
     });
 
     // Quando si passa a un altro racconto il messaggio precedente non vale piu'

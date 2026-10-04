@@ -205,6 +205,79 @@ body.spooky-halloween header .logo-ghost {
   outline-offset: 3px;
 }
 
+/* L'icona "Condividi" sul retro della carta (sta accanto al pulsante della carta, non dentro) */
+.carta-scatola {
+  position: relative;
+}
+
+.carta-condividi {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid #5c6266;
+  border-radius: 50%;
+  background: #0b0d0e;
+  color: #fff;
+  cursor: pointer;
+  animation: spookyComparsa 0.3s ease 0.35s both;
+}
+
+.carta-condividi[hidden] {
+  display: none;
+}
+
+.carta-condividi svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+.carta-condividi:hover,
+.carta-condividi:focus-visible {
+  border-color: var(--spooky-turchese);
+  color: var(--spooky-turchese);
+}
+
+.carta-condividi:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.carta-messaggio {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  left: 12px;
+  z-index: 3;
+  padding: 9px 12px;
+  border-radius: 8px;
+  background: var(--spooky-turchese);
+  color: #04151a;
+  font-family: var(--spooky-macchina);
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.carta-messaggio[hidden] {
+  display: none;
+}
+
+@keyframes spookyComparsa {
+  from { opacity: 0; transform: scale(0.7); }
+  to { opacity: 1; transform: scale(1); }
+}
+
 /* Carta ancora chiusa: lucchetto e data di apertura, non si gira */
 .carta-bloccata {
   cursor: default;
@@ -525,6 +598,10 @@ body.spooky-halloween header .logo-ghost {
 
   .carta-interna {
     transition: none;
+  }
+
+  .carta-condividi {
+    animation: none;
   }
 
   .spooky-fantasma,
