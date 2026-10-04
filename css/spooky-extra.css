@@ -11,6 +11,24 @@
 }
 
 /* ---------------------------------------------------------------
+   Tutto il sito: niente lampo azzurro quando si tocca qualcosa sul telefono
+   (su Android/Samsung compare di default). Il contorno per chi naviga con
+   la tastiera resta, si toglie solo quello che appare toccando con il dito.
+   --------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  -webkit-tap-highlight-color: transparent;
+}
+
+a:focus:not(:focus-visible),
+button:focus:not(:focus-visible),
+[role="button"]:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ---------------------------------------------------------------
    Compito 1 - barra messaggi
    --------------------------------------------------------------- */
 
