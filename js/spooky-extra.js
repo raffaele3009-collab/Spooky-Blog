@@ -1462,13 +1462,34 @@
     });
   }
 
+  // Cosa scrivere, secondo la sezione del racconto:
+  //   immagine -> la scritta in alto nell'immagine (dice da dove viene)
+  //   pulsante -> il testo del pulsante ("Condividi il brivido" solo per i racconti dell'orrore)
+  // Per aggiungere una nuova sezione basta una riga qui, con la stessa chiave usata nell'editor.
+  const SEZIONI_CONDIVISIONE = {
+    storie: { immagine: '·Racconti dal Buio·', pulsante: 'Condividi il brivido' },
+    diario: { immagine: '·Diario per Dormiglioni·', pulsante: 'Condividi' },
+    poesie: { immagine: '·Poesie·', pulsante: 'Condividi' }
+  };
+  // Se la sezione non si riconosce
+  const SEZIONE_GENERICA = { immagine: '·' + NOME_BLOG + '·', pulsante: 'Condividi' };
+
+  // La sezione del racconto aperto (la pagina del blog tiene la lista dei post in tuttiIPost)
+  function sezioneArticoloCorrente() {
+    const id = idArticoloCorrente();
+    if (!id || typeof tuttiIPost === 'undefined') return SEZIONE_GENERICA;
+    const post = tuttiIPost.find(function (p) { return p._id === id; });
+    return post ? (SEZIONI_CONDIVISIONE[post.categoria || 'diario'] || SEZIONE_GENERICA) : SEZIONE_GENERICA;
+  }
+
   function avviaCondividi() {
     const contenuto = document.getElementById('articolo-contenuto');
     const titolo = document.getElementById('articolo-titolo');
     if (!contenuto || !titolo) return;
 
+    let sezione = SEZIONE_GENERICA;
     const blocco = creaElemento('div', 'spooky-condividi');
-    const pulsante = creaElemento('button', 'spooky-condividi-pulsante', 'Condividi il brivido');
+    const pulsante = creaElemento('button', 'spooky-condividi-pulsante', sezione.pulsante);
     pulsante.type = 'button';
     const nota = creaElemento('div', 'spooky-condividi-nota', 'Crea un’immagine per le tue stories e tagga ' + PROFILO_INSTAGRAM);
     const messaggio = creaElemento('div', 'spooky-condividi-messaggio');
@@ -1482,8 +1503,16 @@
     const dopo = document.getElementById('spooky-fine-articolo') || contenuto;
     dopo.insertAdjacentElement('afterend', blocco);
 
+    // Scritta del pulsante e dell'immagine secondo la sezione del racconto aperto
+    function aggiornaSezione() {
+      sezione = sezioneArticoloCorrente();
+      if (!pulsante.disabled) pulsante.textContent = sezione.pulsante;
+    }
+
     pulsante.addEventListener('click', async function () {
       if (pulsante.disabled) return;
+      aggiornaSezione();
+      const sezioneScelta = sezione;
       pulsante.disabled = true;
       pulsante.textContent = MSG_CREO_IMMAGINE;
       messaggio.textContent = '';
@@ -1495,7 +1524,7 @@
       await eseguiCondivisione(
         function () {
           return creaImmagine({
-            etichetta: '·Racconti dal Buio·',
+            etichetta: sezioneScelta.immagine,
             blocchi: [paroleColorate(fraseDaCondividere(contenuto))],
             sotto: '— «' + normalizzaTesto(titolo.textContent) + '»'
           });
@@ -1505,11 +1534,16 @@
       );
 
       pulsante.disabled = false;
-      pulsante.textContent = 'Condividi il brivido';
+      pulsante.textContent = sezioneScelta.pulsante;
     });
 
     // Quando si passa a un altro racconto il messaggio precedente non vale piu'
-    new MutationObserver(function () { messaggio.textContent = ''; }).observe(contenuto, { childList: true });
+    // e la scritta del pulsante puo' cambiare (altra sezione)
+    new MutationObserver(function () {
+      messaggio.textContent = '';
+      aggiornaSezione();
+    }).observe(contenuto, { childList: true });
+    aggiornaSezione();
   }
 
   /* =====================================================================
