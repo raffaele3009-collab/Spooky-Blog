@@ -521,9 +521,9 @@
       const link = LINK_BLOG + '31-brividi.html#n' + n;
       await eseguiCondivisione(
         function () { return immagineDiUnaCarta(n, dati); },
-        function (testo) {
+        function (testo, copiato) {
           clearTimeout(timerMessaggio);
-          scriviMessaggio(messaggio, testo, link);
+          scriviMessaggio(messaggio, testo, link, copiato);
           messaggio.hidden = !testo;
           // i messaggi finali spariscono dopo qualche secondo
           if (testo && testo !== MSG_CREO_IMMAGINE) {
@@ -1375,10 +1375,38 @@
   const MSG_CREO_IMMAGINE = 'Sto evocando l’immagine…';
   const MSG_IMMAGINE_SALVATA = 'Immagine salvata. Pubblicala nelle tue stories e tagga ' + PROFILO_INSTAGRAM + '.';
   const MSG_ERRORE_IMMAGINE = 'Non ci sono riuscito, riprova.';
+  const MSG_LINK_COPIATO = 'Link copiato: incollalo nello sticker Link delle tue stories.';
+
+  // Copia un testo negli appunti. Va chiamata subito, nel momento del tocco: i
+  // browser (Safari in particolare) lo permettono solo cosi'. Ritorna una promessa
+  // che vale true se la copia e' riuscita; se non riesce, non succede nient'altro.
+  function copiaNegliAppunti(testo) {
+    function ripiego() {
+      // Metodo piu' vecchio, per i browser senza navigator.clipboard
+      try {
+        const campo = document.createElement('textarea');
+        campo.value = testo;
+        campo.setAttribute('readonly', '');
+        campo.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0';
+        document.body.appendChild(campo);
+        campo.select();
+        const riuscita = document.execCommand('copy');
+        campo.remove();
+        return riuscita;
+      } catch (errore) {
+        return false;
+      }
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(testo).then(function () { return true; }, function () { return false; });
+    }
+    return Promise.resolve(ripiego());
+  }
 
   // Scrive un messaggio nel suo riquadro. Dopo il salvataggio aggiunge anche
-  // "Spooky Blog" come link cliccabile, da incollare per esempio nello sticker Link delle stories.
-  function scriviMessaggio(elemento, testo, link) {
+  // "Spooky Blog" come link cliccabile (e, se il link e' stato copiato, lo dice).
+  function scriviMessaggio(elemento, testo, link, copiato) {
     elemento.textContent = testo;
     if (testo === MSG_IMMAGINE_SALVATA) {
       elemento.appendChild(document.createTextNode(' Link del blog: '));
@@ -1387,19 +1415,28 @@
       a.target = '_blank';
       a.rel = 'noopener';
       elemento.appendChild(a);
+      if (copiato) elemento.appendChild(document.createTextNode(' (già copiato: incollalo nello sticker Link delle stories)'));
     }
   }
 
-  // Il percorso completo: crea l'immagine, poi la condivide o la scarica.
-  // "comunica" riceve i messaggi da mostrare (stringa vuota = nessun messaggio).
+  // Il percorso completo: copia il link, crea l'immagine, poi la condivide o la scarica.
+  // "comunica" riceve i messaggi da mostrare (stringa vuota = nessun messaggio) e,
+  // come secondo valore, se il link e' stato copiato negli appunti.
   async function eseguiCondivisione(generaImmagine, comunica, link) {
-    comunica(MSG_CREO_IMMAGINE);
+    // Prima di tutto, finche' il tocco e' "fresco": dopo il lavoro di creazione dell'immagine
+    // alcuni browser non lascerebbero piu' copiare
+    const copia = copiaNegliAppunti(link || LINK_BLOG);
+
+    comunica(MSG_CREO_IMMAGINE, false);
     try {
       const immagine = await generaImmagine();
       const esito = await condividiImmagine(immagine, link);
-      comunica(esito === 'scaricato' ? MSG_IMMAGINE_SALVATA : '');
+      const copiato = await copia;
+      if (esito === 'scaricato') comunica(MSG_IMMAGINE_SALVATA, copiato);
+      else if (esito === 'condiviso' && copiato) comunica(MSG_LINK_COPIATO, true);
+      else comunica('', copiato);
     } catch (errore) {
-      comunica(MSG_ERRORE_IMMAGINE);
+      comunica(MSG_ERRORE_IMMAGINE, false);
     }
   }
 
@@ -1463,7 +1500,7 @@
             sotto: '— «' + normalizzaTesto(titolo.textContent) + '»'
           });
         },
-        function (testo) { if (testo !== MSG_CREO_IMMAGINE) scriviMessaggio(messaggio, testo, link); },
+        function (testo, copiato) { if (testo !== MSG_CREO_IMMAGINE) scriviMessaggio(messaggio, testo, link, copiato); },
         link
       );
 
