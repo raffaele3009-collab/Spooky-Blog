@@ -517,17 +517,20 @@
     condividi.addEventListener('click', async function () {
       if (condividi.disabled) return;
       condividi.disabled = true;
+      // Il link porta proprio a questa carta
+      const link = LINK_BLOG + '31-brividi.html#n' + n;
       await eseguiCondivisione(
         function () { return immagineDiUnaCarta(n, dati); },
         function (testo) {
           clearTimeout(timerMessaggio);
-          scriviMessaggio(messaggio, testo);
+          scriviMessaggio(messaggio, testo, link);
           messaggio.hidden = !testo;
           // i messaggi finali spariscono dopo qualche secondo
           if (testo && testo !== MSG_CREO_IMMAGINE) {
             timerMessaggio = setTimeout(function () { messaggio.hidden = true; }, 12000);
           }
-        }
+        },
+        link
       );
       condividi.disabled = false;
     });
@@ -1087,7 +1090,9 @@
   const PROFILO_INSTAGRAM = '@_spookymanager_';
   const INDIRIZZO_SITO = 'raffaele3009-collab.github.io/Spooky-Blog';
   const NOME_BLOG = 'Spooky Blog';
-  const LINK_BLOG = 'https://' + INDIRIZZO_SITO + '/'; // il link cliccabile che accompagna l'immagine
+  // La home del blog: e' il link che accompagna l'immagine quando non c'e' un contenuto preciso,
+  // ed e' anche la base per i link a un racconto o a una carta
+  const LINK_BLOG = 'https://' + INDIRIZZO_SITO + '/';
   // Gli stessi caratteri "macchina da scrivere" del resto del sito
   const FONT_IMMAGINE = '"SFMono-Regular", Menlo, Consolas, "Liberation Mono", "Courier New", Courier, monospace';
   const IMMAGINE_L = 1080;
@@ -1345,7 +1350,8 @@
 
   // Sul telefono apre il menu di condivisione (da li' si sceglie Instagram);
   // dove non si puo', scarica il file. Ritorna 'condiviso', 'annullato' o 'scaricato'.
-  async function condividiImmagine(blob) {
+  // "link" e' dove porta il link che accompagna l'immagine (la home se non indicato).
+  async function condividiImmagine(blob, link) {
     const file = new File([blob], NOME_FILE_IMMAGINE, { type: 'image/png' });
 
     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -1354,7 +1360,7 @@
         await navigator.share({
           files: [file],
           title: NOME_BLOG,
-          text: NOME_BLOG + ': ' + LINK_BLOG + '\nTagga ' + PROFILO_INSTAGRAM
+          text: NOME_BLOG + ': ' + (link || LINK_BLOG) + '\nTagga ' + PROFILO_INSTAGRAM
         });
         return 'condiviso';
       } catch (errore) {
@@ -1372,12 +1378,12 @@
 
   // Scrive un messaggio nel suo riquadro. Dopo il salvataggio aggiunge anche
   // "Spooky Blog" come link cliccabile, da incollare per esempio nello sticker Link delle stories.
-  function scriviMessaggio(elemento, testo) {
+  function scriviMessaggio(elemento, testo, link) {
     elemento.textContent = testo;
     if (testo === MSG_IMMAGINE_SALVATA) {
       elemento.appendChild(document.createTextNode(' Link del blog: '));
       const a = creaElemento('a', 'spooky-messaggio-link', NOME_BLOG);
-      a.href = LINK_BLOG;
+      a.href = link || LINK_BLOG;
       a.target = '_blank';
       a.rel = 'noopener';
       elemento.appendChild(a);
@@ -1386,11 +1392,11 @@
 
   // Il percorso completo: crea l'immagine, poi la condivide o la scarica.
   // "comunica" riceve i messaggi da mostrare (stringa vuota = nessun messaggio).
-  async function eseguiCondivisione(generaImmagine, comunica) {
+  async function eseguiCondivisione(generaImmagine, comunica, link) {
     comunica(MSG_CREO_IMMAGINE);
     try {
       const immagine = await generaImmagine();
-      const esito = await condividiImmagine(immagine);
+      const esito = await condividiImmagine(immagine, link);
       comunica(esito === 'scaricato' ? MSG_IMMAGINE_SALVATA : '');
     } catch (errore) {
       comunica(MSG_ERRORE_IMMAGINE);
@@ -1445,6 +1451,10 @@
       pulsante.textContent = MSG_CREO_IMMAGINE;
       messaggio.textContent = '';
 
+      // Il link porta proprio a questo racconto (se non si riconosce, alla home)
+      const id = idArticoloCorrente();
+      const link = id ? LINK_BLOG + 'spooky-blog.html?post=' + encodeURIComponent(id) : LINK_BLOG;
+
       await eseguiCondivisione(
         function () {
           return creaImmagine({
@@ -1453,7 +1463,8 @@
             sotto: '— «' + normalizzaTesto(titolo.textContent) + '»'
           });
         },
-        function (testo) { if (testo !== MSG_CREO_IMMAGINE) scriviMessaggio(messaggio, testo); }
+        function (testo) { if (testo !== MSG_CREO_IMMAGINE) scriviMessaggio(messaggio, testo, link); },
+        link
       );
 
       pulsante.disabled = false;
