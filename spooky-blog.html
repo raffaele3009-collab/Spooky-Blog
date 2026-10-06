@@ -208,6 +208,13 @@ footer{background:var(--footer-blu);color:#fff;padding:66px 26px 40px;}
 .post-content{font-size:19px;line-height:2;color:var(--blu-testo);}
 .post-content p{margin-bottom:26px;text-align:justify;}
 .post-content.poesia p{text-align:left;}
+/* Poesie: i versi stanno vicini, come in una poesia vera (niente margini da titolo, righe strette) */
+.post-content.poesia{line-height:1.6;}
+.post-content.poesia p,
+.post-content.poesia h1,
+.post-content.poesia h2,
+.post-content.poesia h3{margin:0 0 .3em;font-size:inherit;font-weight:inherit;line-height:1.6;}
+.post-content.poesia .strofa{margin-top:1.5em;}
 .post-content h1,.post-content h2,.post-content h3{color:var(--blu-scuro-titoli);font-weight:600;margin:40px 0 18px;}
 .post-content h1{font-size:30px;}
 .post-content h2{font-size:26px;}
@@ -405,6 +412,26 @@ function estraiEstratto(html, lunghezza = 150) {
   return testo.length > lunghezza ? testo.slice(0, lunghezza) + "..." : testo;
 }
 
+// Le poesie incollate da altri programmi (per esempio Canva) hanno un blocco vuoto tra un
+// verso e l'altro, che sulla pagina diventa un grosso spazio. Si tolgono i vuoti singoli;
+// due vuoti di fila (cioe' uno stacco voluto tra due strofe) diventano un solo spazio piu' largo.
+function sistemaPoesia(contenitore) {
+  let vuotiDiFila = 0;
+  let giaUnVerso = false;
+  contenitore.querySelectorAll("h1,h2,h3,h4,h5,h6,p").forEach(function (blocco) {
+    if (!contenitore.contains(blocco)) return; // era dentro a un blocco vuoto gia' tolto
+    const vuoto = !blocco.querySelector("img") && blocco.textContent.replace(/[\s ]+/g, "") === "";
+    if (vuoto) {
+      vuotiDiFila++;
+      blocco.remove();
+    } else {
+      if (giaUnVerso && vuotiDiFila >= 2) blocco.classList.add("strofa");
+      vuotiDiFila = 0;
+      giaUnVerso = true;
+    }
+  });
+}
+
 function mostraArticolo(id) {
   const indice = tuttiIPost.findIndex(p => p._id === id);
   if (indice === -1) return;
@@ -414,6 +441,7 @@ function mostraArticolo(id) {
   const contenutoArticolo = document.getElementById("articolo-contenuto");
   contenutoArticolo.innerHTML = post.contenuto;
   contenutoArticolo.classList.toggle("poesia", post.categoria === "poesie");
+  if (post.categoria === "poesie") sistemaPoesia(contenutoArticolo);
 
   const contenitoreProssima = document.getElementById("articolo-prossima");
   const prossimoPost = tuttiIPost[indice + 1];
