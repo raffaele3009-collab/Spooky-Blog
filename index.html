@@ -417,7 +417,7 @@ function chiudiMenuMobile() {
 
 <section class="section">
   <div class="blog-sezioni">
-    <div class="blog-sezione">
+    <div class="blog-sezione" data-sezione="ultime">
       <div class="blog-title-riga">
         <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <path fill="#1d4e89" d="M20 2 C21 12 22 18 32 20 C22 22 21 28 20 38 C19 28 18 22 8 20 C18 18 19 12 20 2 Z"/>
@@ -433,7 +433,7 @@ function chiudiMenuMobile() {
       </div>
     </div>
 
-    <div class="blog-sezione">
+    <div class="blog-sezione" data-sezione="storie">
       <div class="blog-title-riga">
         <svg width="40" height="44" viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <path fill="#1d4e89" d="M50 3 C26 3 11 22 11 46 L11 93 C11 98 14 100 18 99 C23 98 26 95 31 96 C37 97 42 100 50 100 C58 100 63 97 69 96 C74 95 77 98 82 99 C86 100 89 98 89 93 L89 46 C89 22 74 3 50 3 Z"/>
@@ -449,7 +449,7 @@ function chiudiMenuMobile() {
       </div>
     </div>
 
-    <div class="blog-sezione">
+    <div class="blog-sezione" data-sezione="diario">
       <div class="blog-title-riga">
         <svg width="44" height="44" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <circle cx="19" cy="22" r="14" fill="#1d4e89"/>
@@ -466,7 +466,7 @@ function chiudiMenuMobile() {
       </div>
     </div>
 
-    <div class="blog-sezione">
+    <div class="blog-sezione" data-sezione="poesie">
       <div class="blog-title-riga">
         <svg width="44" height="40" viewBox="0 0 44 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <path fill="#1d4e89" d="M22 6C18 3 11 2 4 3v28c7-1 14 0 18 3V6z"/>
@@ -481,7 +481,7 @@ function chiudiMenuMobile() {
       </div>
     </div>
 
-    <div class="blog-sezione">
+    <div class="blog-sezione" data-sezione="brividi">
       <div class="blog-title-riga">
         <svg width="40" height="44" viewBox="0 0 40 44" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <rect x="6" y="4" width="28" height="36" rx="5" fill="#1d4e89"/>
@@ -498,6 +498,41 @@ function chiudiMenuMobile() {
     </div>
   </div>
 </section>
+
+<script>
+// Ordine delle sezioni nella home: lo decide l'editor (salvato sul server come
+// pagina "home-ordine"). Prima uso l'ultimo ordine ricordato dal browser, così
+// la home non "salta", poi lo aggiorno con quello del server.
+(function () {
+  const CHIAVE_ORDINE = "spooky-home-ordine";
+  const contenitore = document.querySelector(".blog-sezioni");
+  if (!contenitore) return;
+
+  function applicaOrdine(ordine) {
+    if (!Array.isArray(ordine)) return;
+    ordine.forEach(function (nome) {
+      const blocco = contenitore.querySelector('[data-sezione="' + nome + '"]');
+      if (blocco) contenitore.appendChild(blocco);
+    });
+    // le sezioni non citate nell'elenco restano in fondo, nel loro ordine
+    contenitore.querySelectorAll("[data-sezione]").forEach(function (blocco) {
+      if (ordine.indexOf(blocco.dataset.sezione) === -1) contenitore.appendChild(blocco);
+    });
+  }
+
+  try { applicaOrdine(JSON.parse(localStorage.getItem(CHIAVE_ORDINE))); } catch (e) {}
+
+  fetch("https://spooky-backend-trtr.onrender.com/api/pagina/home-ordine")
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (dati) {
+      if (!dati) return;
+      const ordine = JSON.parse(dati.contenuto);
+      applicaOrdine(ordine);
+      try { localStorage.setItem(CHIAVE_ORDINE, JSON.stringify(ordine)); } catch (e) {}
+    })
+    .catch(function () {});
+})();
+</script>
 
 <script>
 const BACKEND_URL = "https://spooky-backend-trtr.onrender.com";
